@@ -1,0 +1,23 @@
+start_wled_service:
+  ros__parameters:
+    scenes:
+      scene_1:
+        color: [255, 0, 0]   # Red in RGB
+        brightness: 100
+        start: 0
+        stop: 72
+      scene_2:
+        color: [0, 255, 0]   # Green in RGB
+        brightness: 80
+        start: 0
+        stop: 72
+      scene_3:
+        color: [0, 0, 255]   # Blue in RGB
+        brightness: 60
+        start: 0
+        stop: 72
+      scene_4:
+        color: [255, 255, 0] # Yellow in RGB
+        brightness: 90
+        start: 0
+        stop: 72
