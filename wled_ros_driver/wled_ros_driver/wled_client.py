@@ -1,7 +1,6 @@
 import sys
 import rclpy
 from rclpy.node import Node
-from example_interfaces.srv import Trigger  # Use same service type as server
 from wled_interfaces.srv import Action
 
 class AsyncServiceWledClient(Node):
@@ -30,8 +29,8 @@ def main(args=None):
     client = AsyncServiceWledClient()
 
     # Provide the action name as a command line argument or default to "one"
-    action = sys.argv[1] if len(sys.argv) > 1 else 'one'
-    client.get_logger().info(f'Sending request for action: {action}')
+    action = sys.argv[1] if len(sys.argv) > 1 else 'scene_1'
+    client.get_logger().info(f'Sending request for scene: {action}')
     client.send_request(action)
 
     # Spin until response received

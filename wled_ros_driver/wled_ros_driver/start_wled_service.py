@@ -3,26 +3,22 @@ from wled import WLED
 
 WLED_URL = "192.168.0.220"
 
-
-# async def main() -> None:
-#     """Show example on controlling your WLED device."""
-#     async with WLED("192.168.0.220") as led:
-#         device = await led.update()
-#         print(device.info.version)
-
-#         # Turn strip on, full brightness
-#         await led.master(on=True, brightness=255)
-
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
-
-
 import asyncio
 import rclpy
 from rclpy.node import Node
-from example_interfaces.srv import Trigger  # Using Trigger as a simple example service
 from wled_interfaces.srv import Action
+
+BRIGHTNESS_SCENE_1 = 255
+BRIGHTNESS_SCENE_2 = 127
+BRIGHTNESS_SCENE_3 = 63
+BRIGHTNESS_SCENE_4 = 31
+
+SEGMENT_ID_SCENE_X = 0
+START_LED_SCENE_X = 0
+STOP_LED_SCENE_X = 72
+COLOR_PRIMARY_SCENE_X = (255, 255, 255)
+TRANSITION = 1
+
 
 class AsyncServiceWledNode(Node):
 
@@ -30,68 +26,61 @@ class AsyncServiceWledNode(Node):
         super().__init__('async_service_node')
         self.srv = self.create_service(Action, 'do_action', self.handle_service)
         self.get_logger().info("Async service node started")
-
-    async def action_one(self):
-        # await asyncio.sleep(1)
+        
+    async def wled_info(self):
         async with WLED(WLED_URL) as led:
             device = await led.update()
             print(device.info.version)
-
-            # Turn strip on, full brightness
-            await led.master(on=True, brightness=255)
-        return "Action one completed"
-
-    async def action_two(self):
-        # await asyncio.sleep(2)
+        
+    async def scene_1(self):
         async with WLED(WLED_URL) as led:
-            device = await led.update()
-            print(device.info.version)
+            await led.segment(on=True, brightness=255, segment_id=0, start=0, stop=72, color_primary=(255, 255, 255), transition=1)
+            await led.master(on=True)
+        return "Scene '1' complete"
 
-            # Turn strip on, full brightness
-            await led.master(on=True, brightness=127)
-        return "Action two completed"
-
-    async def action_three(self):
-        # await asyncio.sleep(3)
+    async def scene_2(self):
         async with WLED(WLED_URL) as led:
-            device = await led.update()
-            print(device.info.version)
+            await led.segment(on=True, brightness=127, segment_id=0, start=0, stop=72, color_primary=(255, 255, 255), transition=1)
+            await led.master(on=True)
+        return "Scene '2' complete"
 
-            # Turn strip on, full brightness
-            await led.master(on=True, brightness=63)
-        return "Action three completed"
-
-    async def action_four(self):
-        # await asyncio.sleep(4)
+    async def scene_3(self):
         async with WLED(WLED_URL) as led:
-            device = await led.update()
-            print(device.info.version)
+            await led.segment(on=True, brightness=63, segment_id=0, start=0, stop=72, color_primary=(255, 255, 255), transition=1)
+            await led.master(on=True)
+        return "Scene '3' complete"
 
-            # Turn strip on, full brightness
-            await led.master(on=True, brightness=31)
-        return "Action four completed"
+    async def scene_4(self):
+        async with WLED(WLED_URL) as led:
+            await led.segment(on=True, brightness=31, segment_id=0, start=0, stop=72, color_primary=(255, 255, 255), transition=1)
+            await led.master(on=True)
+        return "Scene '4' complete"
     
-    async def action_five(self):
+    async def scene_off(self):
         # await asyncio.sleep(4)
         async with WLED(WLED_URL) as led:
-            device = await led.update()
-            print(device.info.version)
-
-            # Turn strip on, full brightness
-            await led.master(on=True, brightness=0)
-        return "Action five completed"
+            await led.master(on=False)
+        return "Scene 'OFF' complete"
+    
+    async def scene_custom(self):
+        # await asyncio.sleep(4)
+        async with WLED(WLED_URL) as led:
+            await led.segment(on=True, brightness=63, segment_id=0, start=15, stop=55, color_primary=(255, 0, 0), transition=1)
+            await led.master(on=True)
+        return "Scene 'Custom' complete"
 
     async def process_request(self, request):
         # Simulate reading input for which action to execute
         action_map = {
-            "one": self.action_one,
-            "two": self.action_two,
-            "three": self.action_three,
-            "four": self.action_four,
-            "five": self.action_five,
+            "scene_1": self.scene_1,
+            "scene_2": self.scene_2,
+            "scene_3": self.scene_3,
+            "scene_4": self.scene_4,
+            "scene_off": self.scene_off,
+            "scene_custom": self.scene_custom,
         }
-        action_key = request.action.lower() if hasattr(request, 'action') else "one"
-        action = action_map.get(action_key, self.action_one)
+        action_key = request.action.lower() if hasattr(request, 'action') else "scene_1"
+        action = action_map.get(action_key, self.scene_1)
         result = await action()
         return result
 
