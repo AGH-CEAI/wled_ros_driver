@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>wled_ros_driver</name>
+  <version>0.0.0</version>
+  <description>ROS2 driver for the WLED Project</description>
+  <maintainer email="ceai@agh.edu.pl">AGH Center of Excellence in Artificial Intelligence</maintainer>
+  <license>Apache-2.0</license>
+
+  <url type="website">http://cdsi.agh.edu.pl</url>
+  <url type="repository">https://github.com/AGH-CEAI/wled_ros_driver</url>
+  <url type="bugtracker">https://github.com/AGH-CEAI/wled_ros_driver/issues</url>
+
+  <author email="macal@agh.edu.pl">Maciej Aleksandrowicz</author>
+  <author email="kklimek@agh.edu.pl">Krzysztof Klimek</author>
+
+  <depend>wled_interfaces</depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
