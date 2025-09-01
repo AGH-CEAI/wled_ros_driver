@@ -1,3 +1,11 @@
+# File struct
+devel/
+logs/
+log/
+build/
+bin/
+install/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
