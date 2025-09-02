@@ -3,7 +3,7 @@
 <package format="3">
   <name>wled_ros_driver</name>
   <version>0.0.0</version>
-  <description>ROS2 driver for the WLED Project</description>
+  <description>ROS 2 driver for the WLED Project</description>
   <maintainer email="ceai@agh.edu.pl">AGH Center of Excellence in Artificial Intelligence</maintainer>
   <license>Apache-2.0</license>
 
