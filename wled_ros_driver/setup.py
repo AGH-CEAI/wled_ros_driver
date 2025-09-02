@@ -15,7 +15,7 @@ setup(
     maintainer="krzkli",
     maintainer_email="slimasziom@gmail.com",
     description="ROS 2 driver for the WLED Project",
-    license="TODO: License declaration",
+    license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
