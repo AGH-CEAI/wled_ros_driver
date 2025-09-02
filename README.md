@@ -3,9 +3,9 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 
-Package for controlling [WLED](https://kno.wled.ge/) Project using ROS2 stack. The purpose of the creation is to integrate the lights controller with running experiments based on robotic manipulator and tools cameras.
+Package for controlling [WLED](https://know.wled.ge/) Project using ROS2 stack. The purpose of the creation is to integrate the lights controller with running experiments based on robotic manipulator and tools cameras.
 
-Originally developed for integration with Robotic Manipulator with tool cameras, [AEGIS_ROS](https://github.com/AGH-CEAI/aegis_ros) and ROS 2 Humble. 
+Originally developed for integration with Robotic Manipulator with tool cameras, [AEGIS_ROS](https://github.com/AGH-CEAI/aegis_ros) and ROS 2 Humble.
 
 It is possible to modify this repository to fit your needs. **PRs are welcome!**
 
