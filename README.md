@@ -46,12 +46,14 @@ You should see LEDs turn on and off.
 ### Available scenes
 
 You may pick between the following scenarios:
-- scene_1   (All leds, white, 100% brightness)
-- scene_2   (All leds, white, 75% brightness)
-- scene_3   (All leds, white, 50% brightness)
-- scene_4   (All leds, white, 25% brightness)
-- scene_off (Led off)
-- scene_custom  (custom led range, custom color, custom brightness)
+| Argument | Description |
+| --- | --- |
+| `scene_1` | All leds, white, 100% brightness |
+| `scene_2` | All leds, white, 75% brightness |
+| `scene_3` | All leds, white, 50% brightness |
+| `scene_4` | All leds, white, 25% brightness |
+| `scene_off` | Led off |
+| `scene_custom`  | custom led range, custom color, custom brightness |
 
 ## License
 
