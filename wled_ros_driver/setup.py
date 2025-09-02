@@ -14,7 +14,7 @@ setup(
     zip_safe=True,
     maintainer="krzkli",
     maintainer_email="slimasziom@gmail.com",
-    description="TODO: Package description",
+    description="ROS 2 driver for the WLED Project",
     license="TODO: License declaration",
     tests_require=["pytest"],
     entry_points={
