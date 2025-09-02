@@ -1,29 +1,17 @@
 import asyncio
 from wled import WLED
 
-WLED_URL = "192.168.0.220"
-
 import asyncio
 import rclpy
 from rclpy.node import Node
 from wled_interfaces.srv import Action
 
-BRIGHTNESS_SCENE_1 = 255
-BRIGHTNESS_SCENE_2 = 127
-BRIGHTNESS_SCENE_3 = 63
-BRIGHTNESS_SCENE_4 = 31
-
-SEGMENT_ID_SCENE_X = 0
-START_LED_SCENE_X = 0
-STOP_LED_SCENE_X = 72
-COLOR_PRIMARY_SCENE_X = (255, 255, 255)
-TRANSITION = 1
-
+WLED_URL = "192.168.0.220"
 
 class AsyncServiceWledNode(Node):
 
     def __init__(self):
-        super().__init__('async_service_node')
+        super().__init__('wled_service_node')
         self.srv = self.create_service(Action, 'do_action', self.handle_service)
         self.get_logger().info("Async service node started")
         
@@ -57,14 +45,11 @@ class AsyncServiceWledNode(Node):
         return "Scene '4' complete"
     
     async def scene_off(self, _):
-        # await asyncio.sleep(4)
         async with WLED(WLED_URL) as led:
             await led.master(on=False)
         return "Scene 'OFF' complete"
     
     async def scene_custom(self, pars):
-        print(f"Custom parameters: {pars}")
-        # await asyncio.sleep(4)
         async with WLED(WLED_URL) as led:
             await led.segment(on=True, brightness=63, segment_id=0, start=15, stop=55, color_primary=(255, 0, 0), transition=1)
             await led.master(on=True)
@@ -81,7 +66,8 @@ class AsyncServiceWledNode(Node):
             "scene_custom": self.scene_custom,
         }
         
-        # print(f"Requested action: {request.action.lower()}")
+        # print(f"Requested action: {request.action} | params: {request.optional_params}")
+        self.get_logger().info(f"Requested action: {request.action} | params: {request.optional_params}")
         action_key = request.action.lower() if hasattr(request, 'action') else "scene_custom"
         action = action_map.get(action_key, self.scene_1)
         result = await action(request.action.lower())
