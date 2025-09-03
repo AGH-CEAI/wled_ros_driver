@@ -19,101 +19,62 @@ class AsyncServiceWledNode(Node):
             device = await led.update()
             print(device.info.version)
 
-    async def scene_1(self, _):
-        async with WLED(WLED_URL) as led:
-            await led.segment(
-                on=True,
-                brightness=255,
-                segment_id=0,
-                start=0,
-                stop=72,
-                color_primary=(255, 255, 255),
-                transition=1,
-            )
-            await led.master(on=True)
-        return "Scene '1' complete"
+    async def scene_x(self, pars):
+        params = pars.split()
+        print(f"Custom params: {params}, brightness is: {params[0]}")
 
-    async def scene_2(self, _):
-        async with WLED(WLED_URL) as led:
-            await led.segment(
-                on=True,
-                brightness=127,
-                segment_id=0,
-                start=0,
-                stop=72,
-                color_primary=(255, 255, 255),
-                transition=1,
-            )
-            await led.master(on=True)
-        return "Scene '2' complete"
+        if len(params) > 0:
+            brightness = int(params[0])
+        else:
+            brightness = 255
 
-    async def scene_3(self, _):
-        async with WLED(WLED_URL) as led:
-            await led.segment(
-                on=True,
-                brightness=63,
-                segment_id=0,
-                start=0,
-                stop=72,
-                color_primary=(255, 255, 255),
-                transition=1,
-            )
-            await led.master(on=True)
-        return "Scene '3' complete"
+        if len(params) > 1:
+            start = int(params[1])
+            stop = int(params[2])
+            color = tuple(map(int, params[3:6]))
+        else:
+            start = 0
+            stop = 72
+            color = (255, 255, 255)
 
-    async def scene_4(self, _):
         async with WLED(WLED_URL) as led:
             await led.segment(
                 on=True,
-                brightness=31,
+                brightness=brightness,
                 segment_id=0,
-                start=0,
-                stop=72,
-                color_primary=(255, 255, 255),
+                start=start,
+                stop=stop,
+                color_primary=color,
                 transition=1,
             )
             await led.master(on=True)
-        return "Scene '4' complete"
+        return "Scene complete"
 
     async def scene_off(self, _):
         async with WLED(WLED_URL) as led:
             await led.master(on=False)
         return "Scene 'OFF' complete"
 
-    async def scene_custom(self, pars):
-        async with WLED(WLED_URL) as led:
-            await led.segment(
-                on=True,
-                brightness=63,
-                segment_id=0,
-                start=15,
-                stop=55,
-                color_primary=(255, 0, 0),
-                transition=1,
-            )
-            await led.master(on=True)
-        return "Scene 'Custom' complete"
-
     async def process_request(self, request):
         # Simulate reading input for which action to execute
         action_map = {
-            "scene_1": self.scene_1,
-            "scene_2": self.scene_2,
-            "scene_3": self.scene_3,
-            "scene_4": self.scene_4,
-            "scene_off": self.scene_off,
-            "scene_custom": self.scene_custom,
+            "scene_1": (self.scene_x, "255"),
+            "scene_2": (self.scene_x, "127"),
+            "scene_3": (self.scene_x, "63"),
+            "scene_4": (self.scene_x, "31"),
+            "scene_off": (self.scene_off, None),
+            "scene_custom": (self.scene_x, request.optional_params),
         }
 
-        # print(f"Requested action: {request.action} | params: {request.optional_params}")
         self.get_logger().info(
             f"Requested action: {request.action} | params: {request.optional_params}"
         )
         action_key = (
-            request.action.lower() if hasattr(request, "action") else "scene_custom"
+            request.action.lower() if hasattr(request, "action") else "scene_off"
         )
-        action = action_map.get(action_key, self.scene_1)
-        result = await action(request.action.lower())
+        action = action_map.get(action_key, self.scene_x)[0]
+        pars = action_map.get(action_key, self.scene_x)[1]
+        result = await action(pars)
         return result
 
     def handle_service(self, request, response):
