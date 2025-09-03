@@ -38,7 +38,15 @@ ros2 run wled_ros_driver start_wled_service
 ```bash
 source ./install/setup.sh
 python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_1
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_custom "255 10 52 255 127 127"
 python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_off
+```
+or by using ros2 service:
+```bash
+source ./install/setup.sh
+ros2 service call /do_action wled_interfaces/srv/Action "{action: 'scene_1'}"
+ros2 service call /do_action wled_interfaces/srv/Action "{action: 'scene_custom', optional_params: '255 10 52 127 127 63'}"
+ros2 service call /do_action wled_interfaces/srv/Action "{action: 'scene_off'}"
 ```
 
 You should see LEDs turn on and off.
@@ -54,6 +62,19 @@ You may pick between the following scenarios:
 | `scene_4` | All leds, white, 25% brightness |
 | `scene_off` | Led off |
 | `scene_custom`  | custom led range, custom color, custom brightness |
+
+### Custom scene parameters
+
+For `scene_custom`, pass the parameters as space-separated values:
+
+```
+brightness start_led stop_led color_red color_green color_blue
+```
+
+**Example:**
+```
+255 10 52 127 127 63
+```
 
 ## License
 
