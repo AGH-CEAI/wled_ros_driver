@@ -72,8 +72,8 @@ class AsyncServiceWledNode(Node):
         action_key = (
             request.action.lower() if hasattr(request, "action") else "scene_off"
         )
-        action = action_map.get(action_key, self.scene_x)[0]
-        pars = action_map.get(action_key, self.scene_x)[1]
+        action = action_map.get(action_key, self.scene_off)[0]
+        pars = action_map.get(action_key, None)[1]
         result = await action(pars)
         return result
 
