@@ -54,9 +54,12 @@ class AsyncServiceWledNode(Node):
         Returns:
             None
         """
-        async with WLED(WLED_URL) as led:
-            device = await led.update()
-            self.get_logger().info(f"WLED firmware version: {device.info.version}")
+        try:
+            async with WLED(WLED_URL) as led:
+                device = await led.update()
+                self.get_logger().info(f"WLED firmware version: {device.info.version}")
+        except Exception as e:
+            self.get_logger().error(f"Failed to fetch WLED info: {e}")
 
     async def scene_x(self, pars):
         """
@@ -78,18 +81,22 @@ class AsyncServiceWledNode(Node):
 
         brightness, start, stop, color = self._parse_params(params)
 
-        async with WLED(WLED_URL) as led:
-            await led.segment(
-                on=True,
-                brightness=brightness,
-                segment_id=0,
-                start=start,
-                stop=stop,
-                color_primary=color,
-                transition=1,
-            )
-            await led.master(on=True)
-        return "Scene complete"
+        try:
+            async with WLED(WLED_URL) as led:
+                await led.segment(
+                    on=True,
+                    brightness=brightness,
+                    segment_id=0,
+                    start=start,
+                    stop=stop,
+                    color_primary=color,
+                    transition=1,
+                )
+                await led.master(on=True)
+            return True, "Scene complete"
+        except Exception as e:
+            self.get_logger().error(f"Failed to fetch WLED info: {e}")
+            return False, "Failed to execute scene"
 
     async def scene_off(self, _):
         """
@@ -101,9 +108,13 @@ class AsyncServiceWledNode(Node):
         Returns:
             str: Confirmation message indicating the scene is turned off.
         """
-        async with WLED(WLED_URL) as led:
-            await led.master(on=False)
-        return "Scene 'OFF' complete"
+        try:
+            async with WLED(WLED_URL) as led:
+                await led.master(on=False)
+            return True, "Scene 'OFF' complete"
+        except Exception as e:
+            self.get_logger().error(f"Failed to fetch WLED info: {e}")
+            return False, "Failed to execute scene 'OFF'"
 
     async def process_request(self, request):
         """
@@ -149,8 +160,8 @@ class AsyncServiceWledNode(Node):
         # Use asyncio to run the async handler
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(self.process_request(request))
-        response.success = True
-        response.message = result
+        response.success = result[0]
+        response.message = result[1]
         return response
 
     def _parse_request_to_scene(self, request) -> str:
