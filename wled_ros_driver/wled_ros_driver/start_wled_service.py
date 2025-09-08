@@ -21,31 +21,19 @@ class AsyncServiceWledNode(Node):
 
     def __init__(self):
         super().__init__("wled_service_node")
-        self.srv = self.create_service(Action, "do_action", self.handle_service)
+        self.srv = self.create_service(Action, "do_action", self._handle_service)
         self.get_logger().info("Async service node started")
 
     async def wled_info(self):
         async with WLED(WLED_URL) as led:
             device = await led.update()
-            print(device.info.version)
+            self.get_logger().info(f"WLED firmware version: {device.info.version}")
 
     async def scene_x(self, pars):
         params = pars.split()
-        print(f"Custom params: {params}, brightness is: {params[0]}")
+        self.get_logger().info(f"Custom params: {params}, brightness is: {params[0]}")
 
-        if len(params) > 0:
-            brightness = int(params[0])
-        else:
-            brightness = 255
-
-        if len(params) > 1:
-            start = int(params[1])
-            stop = int(params[2])
-            color = tuple(map(int, params[3:6]))
-        else:
-            start = 0
-            stop = 72
-            color = (255, 255, 255)
+        brightness, start, stop, color = self._parse_params(params)
 
         async with WLED(WLED_URL) as led:
             await led.segment(
@@ -70,15 +58,16 @@ class AsyncServiceWledNode(Node):
             f"Requested action: {request.action} | params: {request.optional_params}"
         )
 
-        action_key = self.parse_request_to_action(request)
+        action_key = self._parse_request_to_action(request)
         method_name, param = self._action_map_template[action_key]
+        param = request.optional_params if param is None else param
 
         method = getattr(self, method_name, None)
         result = await method(param)
 
         return result
 
-    def handle_service(self, request, response):
+    def _handle_service(self, request, response):
         # Use asyncio to run the async handler
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(self.process_request(request))
@@ -86,7 +75,7 @@ class AsyncServiceWledNode(Node):
         response.message = result
         return response
 
-    def parse_request_to_action(self, request) -> str:
+    def _parse_request_to_action(self, request) -> str:
         action_key = (
             request.action.lower()
             if hasattr(request, "action") and request.action
@@ -96,6 +85,20 @@ class AsyncServiceWledNode(Node):
             action_key = "scene_off"
 
         return action_key
+
+    def _parse_params(self, params_list):
+        try:
+            brightness = int(params_list[0]) if len(params_list) > 0 else 255
+            start = int(params_list[1]) if len(params_list) > 1 else 0
+            stop = int(params_list[2]) if len(params_list) > 2 else 72
+            color_red = int(params_list[3]) if len(params_list) > 3 else 255
+            color_green = int(params_list[4]) if len(params_list) > 4 else 255
+            color_blue = int(params_list[5]) if len(params_list) > 5 else 255
+            color = (color_red, color_green, color_blue)
+        except ValueError as e:
+            self.get_logger().error(f"Invalid parameter value: {e}")
+            brightness, start, stop, color = 255, 0, 72, (127, 127, 63)
+        return brightness, start, stop, color
 
 
 def main(args=None):
