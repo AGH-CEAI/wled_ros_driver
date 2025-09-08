@@ -3,14 +3,14 @@ from wled import WLED
 
 import rclpy
 from rclpy.node import Node
-from wled_interfaces.srv import Action
+from wled_interfaces.srv import ChangeScene
 
 # TODO(issue#3): move hardcoded IP to a YAML config
 WLED_URL = "192.168.0.220"
 
 
 class AsyncServiceWledNode(Node):
-    _action_map_template = {
+    _scene_map_template = {
         "scene_1": ("scene_x", "255"),
         "scene_2": ("scene_x", "127"),
         "scene_3": ("scene_x", "63"),
@@ -21,7 +21,9 @@ class AsyncServiceWledNode(Node):
 
     def __init__(self):
         super().__init__("wled_service_node")
-        self.srv = self.create_service(Action, "do_action", self._handle_service)
+        self.srv = self.create_service(
+            ChangeScene, "wled_scene_change", self._handle_service
+        )
         self.get_logger().info("Async service node started")
 
     async def wled_info(self):
@@ -55,11 +57,11 @@ class AsyncServiceWledNode(Node):
 
     async def process_request(self, request):
         self.get_logger().info(
-            f"Requested action: {request.action} | params: {request.optional_params}"
+            f"Requested scene: {request.scene} | params: {request.optional_params}"
         )
 
-        action_key = self._parse_request_to_action(request)
-        method_name, param = self._action_map_template[action_key]
+        scene_key = self._parse_request_to_scene(request)
+        method_name, param = self._scene_map_template[scene_key]
         param = request.optional_params if param is None else param
 
         method = getattr(self, method_name, None)
@@ -75,16 +77,16 @@ class AsyncServiceWledNode(Node):
         response.message = result
         return response
 
-    def _parse_request_to_action(self, request) -> str:
-        action_key = (
-            request.action.lower()
-            if hasattr(request, "action") and request.action
+    def _parse_request_to_scene(self, request) -> str:
+        scene_key = (
+            request.scene.lower()
+            if hasattr(request, "scene") and request.scene
             else "scene_off"
         )
-        if action_key not in self._action_map_template:
-            action_key = "scene_off"
+        if scene_key not in self._scene_map_template:
+            scene_key = "scene_off"
 
-        return action_key
+        return scene_key
 
     def _parse_params(self, params_list):
         try:

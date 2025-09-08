@@ -44,9 +44,9 @@ python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene
 or by using ros2 service:
 ```bash
 source ./install/setup.sh
-ros2 service call /do_action wled_interfaces/srv/Action "{action: 'scene_1'}"
-ros2 service call /do_action wled_interfaces/srv/Action "{action: 'scene_custom', optional_params: '255 10 52 127 127 63'}"
-ros2 service call /do_action wled_interfaces/srv/Action "{action: 'scene_off'}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_1'}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', optional_params: '255 10 52 127 127 63'}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_off'}"
 ```
 
 You should see LEDs turn on and off.

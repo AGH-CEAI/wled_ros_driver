@@ -1,4 +1,4 @@
-string action
+string scene
 string optional_params
 ---
 bool success

@@ -13,6 +13,7 @@
 
   <author email="macal@agh.edu.pl">Maciej Aleksandrowicz</author>
   <author email="kklimek@agh.edu.pl">Krzysztof Klimek</author>
+  <author email="jplachno@agh.edu.pl">Jakub Płachno</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
