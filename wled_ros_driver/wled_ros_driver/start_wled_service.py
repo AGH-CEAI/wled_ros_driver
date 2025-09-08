@@ -10,6 +10,15 @@ WLED_URL = "192.168.0.220"
 
 
 class AsyncServiceWledNode(Node):
+    _action_map_template = {
+        "scene_1": ("scene_x", "255"),
+        "scene_2": ("scene_x", "127"),
+        "scene_3": ("scene_x", "63"),
+        "scene_4": ("scene_x", "31"),
+        "scene_off": ("scene_off", None),
+        "scene_custom": ("scene_x", None),  # Params set dynamically
+    }
+
     def __init__(self):
         super().__init__("wled_service_node")
         self.srv = self.create_service(Action, "do_action", self.handle_service)
@@ -57,25 +66,16 @@ class AsyncServiceWledNode(Node):
         return "Scene 'OFF' complete"
 
     async def process_request(self, request):
-        # Simulate reading input for which action to execute
-        action_map = {
-            "scene_1": (self.scene_x, "255"),
-            "scene_2": (self.scene_x, "127"),
-            "scene_3": (self.scene_x, "63"),
-            "scene_4": (self.scene_x, "31"),
-            "scene_off": (self.scene_off, None),
-            "scene_custom": (self.scene_x, request.optional_params),
-        }
-
         self.get_logger().info(
             f"Requested action: {request.action} | params: {request.optional_params}"
         )
-        action_key = (
-            request.action.lower() if hasattr(request, "action") else "scene_off"
-        )
-        action = action_map.get(action_key, self.scene_off)[0]
-        pars = action_map.get(action_key, None)[1]
-        result = await action(pars)
+
+        action_key = self.parse_request_to_action(request)
+        method_name, param = self._action_map_template[action_key]
+
+        method = getattr(self, method_name, None)
+        result = await method(param)
+
         return result
 
     def handle_service(self, request, response):
@@ -85,6 +85,17 @@ class AsyncServiceWledNode(Node):
         response.success = True
         response.message = result
         return response
+
+    def parse_request_to_action(self, request) -> str:
+        action_key = (
+            request.action.lower()
+            if hasattr(request, "action") and request.action
+            else "scene_off"
+        )
+        if action_key not in self._action_map_template:
+            action_key = "scene_off"
+
+        return action_key
 
 
 def main(args=None):
