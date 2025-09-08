@@ -5,6 +5,7 @@ import rclpy
 from rclpy.node import Node
 from wled_interfaces.srv import Action
 
+# TODO(issue#3): move hardcoded IP to a YAML config
 WLED_URL = "192.168.0.220"
 
 
