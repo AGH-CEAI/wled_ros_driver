@@ -1,6 +1,9 @@
 # wled_ros_driver
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Licence](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
 
 
 Package for controlling [WLED](https://know.wled.ge/) project using ROS 2 stack. The package was created to integrate the lights controller with experiments involving a robotic manipulator and tool cameras.
@@ -74,6 +77,20 @@ brightness start_led stop_led color_red color_green color_blue
 **Example:**
 ```
 255 10 52 127 127 63
+```
+
+---
+
+## Development notes
+
+### pre-commit
+This project uses various tools for aiding the quality of the source code. Currently most of them are executed by the `pre-commit`. As a faster alternative it is suggested to use `prek`. Please make sure to enable its hooks:
+
+```bash
+# In case of pre-commit
+pre-commit install
+# In case of prek
+prek install
 ```
 
 ## License

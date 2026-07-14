@@ -1,3 +1,8 @@
+# Copyright (c) 2025-2026, AGH Center of Excellence in Artificial Intelligence
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from setuptools import find_packages, setup
 
 package_name = "wled_ros_driver"
