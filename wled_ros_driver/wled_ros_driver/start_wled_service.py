@@ -8,8 +8,8 @@ from wled import WLED
 import rclpy
 from rclpy.node import Node
 from wled_interfaces.srv import ChangeScene
-
-
+from wled_ros_driver.scene_data import SceneData
+from wled_ros_driver.scene_function import SceneFunction
 from rcl_interfaces.msg import SetParametersResult
 
 
@@ -34,13 +34,14 @@ class AsyncServiceWledNode(Node):
         - Registers the _handle_service method as the service callback.
         - Logs a message indicating the service node has started.
         """
+
         super().__init__(
             "wled_service_node",
             allow_undeclared_parameters=True,
             automatically_declare_parameters_from_overrides=True,
         )
 
-        self.load_variables_dynamicly()
+        self.load_variables()
         self.add_on_set_parameters_callback(self._parameter_callback)
 
         self.srv = self.create_service(
@@ -50,10 +51,9 @@ class AsyncServiceWledNode(Node):
         self.get_logger().info("Async service node started")
         self.get_logger().info("IP address " + self.wled_url)
 
-    def load_variables_dynamicly(self):
+    def load_variables(self):
         """
-        Loads data provided by ros via yaml file
-
+        Loads data provided by ROS via YAML file
         """
         self.wled_url = (
             self.get_parameter("wled_url").get_parameter_value().string_value
@@ -64,13 +64,12 @@ class AsyncServiceWledNode(Node):
         for key, param in scenes_params.items():
             scene_name, scene_parameter = key.split(".")
             if scene_name not in self.scenes:
-                self.scenes[scene_name] = {}
-            self.scenes[scene_name][scene_parameter] = param.value
+                self.scenes[scene_name] = SceneData
+            setattr(self.scenes[scene_name], scene_parameter, param.value)
 
-    def _parameter_callback(self, params):
+    def _parameter_callback(self, params) -> SetParametersResult:
         """
-        Callback function triggered every time ros parameter is changed while node is running.
-        It updates all node variables to be consistent with change.
+        Callback function triggered every time ROS parameter is changed while node is running.
         """
         for param in params:
             self.get_logger().info("param name " + param.name)
@@ -79,7 +78,7 @@ class AsyncServiceWledNode(Node):
                 self.wled_url = param.value
                 self.get_logger().info("Updated led ip: " + self.wled_url)
 
-            if param.name.split(".")[0] == "scenes":
+            if param.name.startswith("scenes."):
                 values = param.name.split(".")
                 self.get_logger().info(f"values : {values}")
 
@@ -87,8 +86,7 @@ class AsyncServiceWledNode(Node):
                     _, scene_name, param_name = values
                     if scene_name not in self.scenes:
                         self.scenes[scene_name] = {}
-
-                    self.scenes[scene_name][param_name] = param.value
+                    setattr(self.scenes[scene_name], param_name, param.value)
                     self.get_logger().info(f"Updated scenes : {self.scenes}")
 
                 else:
@@ -114,7 +112,7 @@ class AsyncServiceWledNode(Node):
         except Exception as e:
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
 
-    async def scene_x(self, pars):
+    async def scene_x(self, pars) -> bool:
         """
         Asynchronous method to set a custom LED scene using the WLED API.
 
@@ -128,17 +126,17 @@ class AsyncServiceWledNode(Node):
         Returns:
             str: Confirmation message indicating the scene was set.
         """
-        self.get_logger().info("brightness is: " + str(pars["brightness"]))
+        self.get_logger().info("brightness is: " + str(pars.brightness))
 
         try:
             async with WLED(self.wled_url) as led:
                 await led.segment(
                     on=True,
-                    brightness=pars["brightness"],
+                    brightness=pars.brightness,
                     segment_id=0,
-                    start=pars["start"],
-                    stop=pars["stop"],
-                    color_primary=pars["color"],
+                    start=pars.start,
+                    stop=pars.stop,
+                    color_primary=pars.color,
                     transition=1,
                 )
                 await led.master(on=True)
@@ -165,7 +163,7 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
-    def _handle_service(self, request, response):
+    def _handle_service(self, request, response) -> object:
         """
         Synchronous service handler for ROS 2 service requests.
         Runs the asynchronous process_request method using the event loop,
@@ -180,12 +178,12 @@ class AsyncServiceWledNode(Node):
         """
         # Use asyncio to run the async handler
         loop = asyncio.get_event_loop()
-        result = loop.run_until_complete(self.process_request(request))
+        result = loop.run_until_complete(self._process_request(request))
         response.success = result[0]
         response.message = result[1]
         return response
 
-    async def process_request(self, request):
+    async def _process_request(self, request) -> SceneData:
         """
         Asynchronous handler for processing incoming service requests.
 
@@ -200,16 +198,20 @@ class AsyncServiceWledNode(Node):
         Returns:
             result: The result string from the executed scene method.
         """
+        METHODS_MAP = {SceneFunction.X: self.scene_x, SceneFunction.OFF: self.scene_off}
+
         self.get_logger().info(
             f"Requested scene: {request.scene} | params: {request.optional_params}"
         )
 
-        method_name, params = self._prepare_request_params(request)
-        method = getattr(self, method_name, None)
+        method_enum, params = self._prepare_request_params(request)
 
-        result = await method(params)
+        # method = getattr(self, method_name, None)
 
-        return result
+        # result = await method(params)
+
+        # return result
+        return await METHODS_MAP[method_enum](params)
 
     def _prepare_request_params(self, request) -> dict:
         """
@@ -224,22 +226,24 @@ class AsyncServiceWledNode(Node):
             function_name (str): name of a function to run in order to get desired led behaviour.
             params (dict): Dictionary containing all parameters describing desired led behaviour (brightness,start,stop,color).
         """
+
         scene_key = (
             request.scene.lower()
             if hasattr(request, "scene") and request.scene
             else "scene_off"
         )
+
         if scene_key == "scene_custom":
-            return "scene_x", self._parse_params_from_array(
+            return SceneFunction.X, self._parse_params_from_array(
                 request.optional_params.split()
             )
-        if scene_key == "scene_off":
+        if scene_key == SceneFunction.OFF:
             return "scene_off", {}
 
         if scene_key in self.scenes.keys():
-            return "scene_x", self.scenes[scene_key]
+            return SceneFunction.X, self.scenes[scene_key]
         else:
-            return "scene_off", {}
+            return SceneFunction.OFF, {}
 
     def _parse_params_from_array(self, params_list):
         """
@@ -262,24 +266,24 @@ class AsyncServiceWledNode(Node):
         }
 
         """
-        result = {}
+        result = SceneData
         try:
-            result["brightness"] = int(params_list[0]) if len(params_list) > 0 else 255
-            result["start"] = int(params_list[1]) if len(params_list) > 1 else 0
-            result["stop"] = int(params_list[2]) if len(params_list) > 2 else 72
+            result.brightness = int(params_list[0]) if len(params_list) > 0 else 255
+            result.start = int(params_list[1]) if len(params_list) > 1 else 0
+            result.stop = int(params_list[2]) if len(params_list) > 2 else 72
             color_red = int(params_list[3]) if len(params_list) > 3 else 255
             color_green = int(params_list[4]) if len(params_list) > 4 else 255
             color_blue = int(params_list[5]) if len(params_list) > 5 else 255
-            result["color"] = [color_red, color_green, color_blue]
+            result.color = [color_red, color_green, color_blue]
 
         except ValueError as e:
             self.get_logger().error(f"Invalid parameter value: {e}")
-            result = {
-                "brightness": 255,
-                "start": 0,
-                "stop": 72,
-                "color": [127, 127, 63],
-            }
+            result = SceneData(
+                brightness=255,
+                start=0,
+                stop=72,
+                color=[127, 127, 63],
+            )
 
         return result
 
