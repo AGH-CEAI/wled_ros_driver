@@ -2,10 +2,6 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-# Copyright (c) 2025-2026, AGH Center of Excellence in Artificial Intelligence
-# All rights reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
