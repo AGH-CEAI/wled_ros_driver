@@ -1,3 +1,11 @@
+# Copyright (c) 2025-2026, AGH Center of Excellence in Artificial Intelligence
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025-2026, AGH Center of Excellence in Artificial Intelligence
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -9,7 +17,7 @@ def generate_launch_description() -> LaunchDescription:
 
     config_file_arg = DeclareLaunchArgument(
         "config",
-        default_value = PathJoinSubstitution(
+        default_value=PathJoinSubstitution(
             [FindPackageShare("wled_ros_driver"), "config", "scenes.yaml"]
         ),
         description="Path to the custom YAML configuration file for WLED service.",
@@ -25,7 +33,9 @@ def generate_launch_description() -> LaunchDescription:
         parameters=[config_file],
     )
 
-    return LaunchDescription([
-        config_file_arg,
-        wled_service_node,
-    ])
+    return LaunchDescription(
+        [
+            config_file_arg,
+            wled_service_node,
+        ]
+    )

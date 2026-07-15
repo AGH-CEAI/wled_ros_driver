@@ -14,7 +14,10 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
         ("share/" + package_name, ["package.xml"]),
-        ("share/wled_ros_driver/launch", ["wled_ros_driver/launch/wled_service.launch.py"]),
+        (
+            "share/wled_ros_driver/launch",
+            ["wled_ros_driver/launch/wled_service.launch.py"],
+        ),
         ("share/wled_ros_driver/config", ["wled_ros_driver/config/scenes.yaml"]),
     ],
     install_requires=["setuptools", "wled"],
