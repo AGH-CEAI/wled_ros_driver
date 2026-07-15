@@ -71,7 +71,7 @@ class AsyncServiceWledNode(Node):
         for scene_name in loaded_scenes.keys():
             self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
 
-    def _parameter_callback(self, params) -> SetParametersResult:
+    def _parameter_callback(self, params: dict) -> SetParametersResult:
         """
         Callback function triggered every time ROS parameter is changed while node is running.
         """
@@ -117,7 +117,7 @@ class AsyncServiceWledNode(Node):
         except Exception as e:
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
 
-    async def scene_x(self, pars) -> bool:
+    async def scene_x(self, pars: SceneData) -> tuple[bool, str]:
         """
         Asynchronous method to set a custom LED scene using the WLED API.
 
@@ -132,7 +132,6 @@ class AsyncServiceWledNode(Node):
             str: Confirmation message indicating the scene was set.
         """
         self.get_logger().info("brightness is: " + str(pars.brightness))
-
         try:
             async with WLED(self.wled_url) as led:
                 await led.segment(
@@ -150,7 +149,7 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene"
 
-    async def scene_off(self, _):
+    async def scene_off(self, _) -> tuple[bool, str]:
         """
         Asynchronous method to turn off all LEDs using the WLED API.
 
@@ -168,7 +167,9 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
-    def _handle_service(self, request, response) -> object:
+    def _handle_service(
+        self, request: ChangeScene.Request, response: ChangeScene.Response
+    ) -> object:
         """
         Synchronous service handler for ROS 2 service requests.
         Runs the asynchronous process_request method using the event loop,
@@ -188,7 +189,7 @@ class AsyncServiceWledNode(Node):
         response.message = result[1]
         return response
 
-    async def _process_request(self, request) -> SceneData:
+    async def _process_request(self, request: ChangeScene.Request) -> tuple[bool, str]:
         """
         Asynchronous handler for processing incoming service requests.
 
@@ -216,7 +217,9 @@ class AsyncServiceWledNode(Node):
 
         return await METHODS_MAP[method_enum](params)
 
-    def _prepare_request_params(self, request) -> dict:
+    def _prepare_request_params(
+        self, request: ChangeScene.Request
+    ) -> tuple[SceneFunction, SceneData]:
         """
         Extracts and normalizes the requested scene name from the service request.
         If the scene is not specified or not recognized, defaults to 'scene_off'.
@@ -248,7 +251,7 @@ class AsyncServiceWledNode(Node):
         else:
             return SceneFunction.SCENE_OFF, {}
 
-    def _parse_params_from_array(self, params_list):
+    def _parse_params_from_array(self, params_list: list):
         """
         Parse a list of string parameters for custom WLED scene control.
 
