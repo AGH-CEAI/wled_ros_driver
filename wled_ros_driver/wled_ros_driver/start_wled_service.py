@@ -149,7 +149,7 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene"
 
-    async def scene_off(self, _) -> tuple[bool, str]:
+    async def scene_off(self, _pars: SceneData) -> tuple[bool, str]:
         """
         Asynchronous method to turn off all LEDs using the WLED API.
 
