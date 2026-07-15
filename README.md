@@ -28,16 +28,20 @@ Make sure the system works using UI provided by WLED Project.
 source /opt/ros/humble/setup.sh
 git clone git@github.com:AGH-CEAI/wled_ros_driver.git
 colcon build --symlink-install
-source ./install/local_setup.sh
+source ./install/setup.bash
 ```
 
 ### Test
 
-1. Start the server
-```bash
-ros2 run wled_ros_driver start_wled_service
+1.Configure your WLED IP address and scene parameters in the configuration file:
 ```
-2. Call the commands (another terminal)
+wled_ros_driver/config/scenes.yaml
+```
+2. Start the server using the launch file:
+```bash
+ros2 launch wled_ros_driver wled_service.launch.py
+```
+3. Call the commands (another terminal)
 ```bash
 source ./install/setup.sh
 python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_1
