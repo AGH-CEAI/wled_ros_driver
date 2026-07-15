@@ -6,5 +6,5 @@ from strenum import StrEnum
 
 
 class SceneFunction(StrEnum):
-    X = "scene_x"
-    OFF = "scene_off"
+    CHANGE_SCENE = "scene_x"
+    TURN_OFF = "scene_off"

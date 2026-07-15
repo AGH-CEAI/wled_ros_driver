@@ -11,6 +11,7 @@ from wled_interfaces.srv import ChangeScene
 from wled_ros_driver.scene_data import SceneData
 from wled_ros_driver.scene_function import SceneFunction
 from rcl_interfaces.msg import SetParametersResult
+from dataclasses import asdict
 
 
 class AsyncServiceWledNode(Node):
@@ -41,7 +42,7 @@ class AsyncServiceWledNode(Node):
             automatically_declare_parameters_from_overrides=True,
         )
 
-        self.load_variables()
+        self._load_variables()
         self.add_on_set_parameters_callback(self._parameter_callback)
 
         self.srv = self.create_service(
@@ -51,7 +52,7 @@ class AsyncServiceWledNode(Node):
         self.get_logger().info("Async service node started")
         self.get_logger().info("IP address " + self.wled_url)
 
-    def load_variables(self):
+    def _load_variables(self):
         """
         Loads data provided by ROS via YAML file
         """
@@ -59,13 +60,16 @@ class AsyncServiceWledNode(Node):
             self.get_parameter("wled_url").get_parameter_value().string_value
         )
 
-        self.scenes = {}
+        loaded_scenes = {}
         scenes_params = self.get_parameters_by_prefix("scenes")
         for key, param in scenes_params.items():
             scene_name, scene_parameter = key.split(".")
-            if scene_name not in self.scenes:
-                self.scenes[scene_name] = SceneData
-            setattr(self.scenes[scene_name], scene_parameter, param.value)
+            if scene_name not in loaded_scenes:
+                loaded_scenes[scene_name] = {}
+            loaded_scenes[scene_name][scene_parameter] = param.value
+        self.scenes = {}
+        for scene_name in loaded_scenes.keys():
+            self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
 
     def _parameter_callback(self, params) -> SetParametersResult:
         """
@@ -85,9 +89,10 @@ class AsyncServiceWledNode(Node):
                 if len(values) == 3:
                     _, scene_name, param_name = values
                     if scene_name not in self.scenes:
-                        self.scenes[scene_name] = {}
-                    setattr(self.scenes[scene_name], param_name, param.value)
-                    self.get_logger().info(f"Updated scenes : {self.scenes}")
+                        return SetParametersResult(successful=False)
+                    edited_scene = asdict(self.scenes[scene_name])
+                    edited_scene[param_name] = param.value
+                    self.scenes[scene_name] = SceneData(**edited_scene)
 
                 else:
                     return SetParametersResult(successful=False)
@@ -198,7 +203,10 @@ class AsyncServiceWledNode(Node):
         Returns:
             result: The result string from the executed scene method.
         """
-        METHODS_MAP = {SceneFunction.X: self.scene_x, SceneFunction.OFF: self.scene_off}
+        METHODS_MAP = {
+            SceneFunction.CHANGE_SCENE: self.scene_x,
+            SceneFunction.TURN_OFF: self.scene_off,
+        }
 
         self.get_logger().info(
             f"Requested scene: {request.scene} | params: {request.optional_params}"
@@ -206,11 +214,6 @@ class AsyncServiceWledNode(Node):
 
         method_enum, params = self._prepare_request_params(request)
 
-        # method = getattr(self, method_name, None)
-
-        # result = await method(params)
-
-        # return result
         return await METHODS_MAP[method_enum](params)
 
     def _prepare_request_params(self, request) -> dict:
@@ -234,16 +237,16 @@ class AsyncServiceWledNode(Node):
         )
 
         if scene_key == "scene_custom":
-            return SceneFunction.X, self._parse_params_from_array(
+            return SceneFunction.CHANGE_SCENE, self._parse_params_from_array(
                 request.optional_params.split()
             )
-        if scene_key == SceneFunction.OFF:
-            return "scene_off", {}
+        if scene_key == "scene_off":
+            return SceneFunction.SCENE_OFF, {}
 
         if scene_key in self.scenes.keys():
-            return SceneFunction.X, self.scenes[scene_key]
+            return SceneFunction.CHANGE_SCENE, self.scenes[scene_key]
         else:
-            return SceneFunction.OFF, {}
+            return SceneFunction.SCENE_OFF, {}
 
     def _parse_params_from_array(self, params_list):
         """

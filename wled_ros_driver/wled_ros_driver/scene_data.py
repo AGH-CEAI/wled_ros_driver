@@ -5,9 +5,12 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class SceneData:
     color: list
     brightness: int
     start: int
     stop: int
+
+    def __len__(self) -> int:
+        return len(self.__slots__)
