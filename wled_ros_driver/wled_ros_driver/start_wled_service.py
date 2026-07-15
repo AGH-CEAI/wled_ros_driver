@@ -251,7 +251,7 @@ class AsyncServiceWledNode(Node):
         else:
             return SceneFunction.SCENE_OFF, {}
 
-    def _parse_params_from_array(self, params_list: list):
+    def _parse_params_from_array(self, params_list: list) -> SceneData:
         """
         Parse a list of string parameters for custom WLED scene control.
 
