@@ -1,6 +1,6 @@
-start_wled_service:
+wled_service_node:
   ros__parameters:
-    ip: "192.168.0.220"
+    wled_url: "192.168.100.50"
     scenes:
       scene_1:
         color: [255, 0, 0]   # Red in RGB
