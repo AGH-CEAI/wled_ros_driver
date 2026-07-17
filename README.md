@@ -44,16 +44,22 @@ ros2 launch wled_ros_driver wled_service.launch.py
 3. Call the commands (another terminal)
 ```bash
 source ./install/setup.sh
-python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_1
-python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_custom "255 10 52 255 127 127"
-python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_off
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_1 section_1
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_custom section_1 "255 255 127 127" (brightness red green blue)
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_2 section_custom "4 11" (start_led stop_led)
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_custom section_custom "255 4 11 255 127 127" (brightness start_led stop_led red green blue )
+
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_off section_1
 ```
 or by using ros2 service:
 ```bash
 source ./install/setup.sh
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_1'}"
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', optional_params: '255 10 52 127 127 63'}"
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_off'}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1'}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', section: 'section_1', optional_params: '255 127 127 63'}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_2', section: 'scene_custom', optional_params: '4 11'}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', section: 'section_custom', optional_params: '255 4 11 255 127 127'}"
+
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_off', section: 'section_1'}"
 ```
 
 You should see LEDs turn on and off.
