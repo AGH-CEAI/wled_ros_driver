@@ -7,7 +7,7 @@ import asyncio
 from wled import WLED
 import rclpy
 from rclpy.node import Node
-from wled_interfaces.srv import ChangeScene
+from wled_interfaces.srv import ChangeScene, GetSections, DefineScene
 from wled_ros_driver.scene_data import SceneData
 from wled_ros_driver.scene_function import SceneFunction
 from wled_ros_driver.section_data import SectionData
@@ -49,7 +49,15 @@ class AsyncServiceWledNode(Node):
         self.add_on_set_parameters_callback(self._parameter_callback)
 
         self.srv = self.create_service(
-            ChangeScene, "wled_scene_change", self._handle_service
+            ChangeScene, "wled_scene_change", self._handle_change_scene
+        )
+
+        self.srv_get_section = self.create_service(
+            GetSections, "wled_get_sections", self._handle_get_sections
+        )
+
+        self.srv_define_scene = self.create_service(
+            DefineScene, "wled_define_scene", self._handle_define_scene
         )
 
         self.get_logger().info("Async service node started")
@@ -202,7 +210,7 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
-    def _handle_service(
+    def _handle_change_scene(
         self, request: ChangeScene.Request, response: ChangeScene.Response
     ) -> object:
         """
@@ -222,6 +230,51 @@ class AsyncServiceWledNode(Node):
         result = loop.run_until_complete(self._process_request(request))
         response.success = result[0]
         response.message = result[1]
+        return response
+
+    def _handle_get_sections(
+        self, request: GetSections.Request, response: GetSections.Response
+    ) -> object:
+        """
+        Returns the list of currently configured sub-sections from loaded scenes.
+        """
+        self.get_logger().info("GetSections service called")
+
+        section_names = []
+        starts = []
+        stops = []
+
+        for name, data in self.scenes.items():
+            section_names.append(name)
+            starts.append(int(data.start))
+            stops.append(int(data.stop))
+
+        response.section_names = section_names
+        response.starts = starts
+        response.stops = stops
+
+        return response
+
+    def _handle_define_scene(
+        self, request: DefineScene.Request, response: DefineScene.Response
+    ) -> object:
+        """
+        Dynamically registers or redefines a scene configuration during runtime.
+        """
+        name = request.scene_name
+        self.get_logger().info(f"DefineScene called for scene: {name}")
+
+        try:
+            self.scenes[name] = SceneData(
+                color=list(request.color), brightness=int(request.brightness)
+            )
+            response.success = True
+            response.message = f"Scene '{name}' successfully defined/updated."
+            self.get_logger().info(response.message)
+        except Exception as e:
+            response.success = False
+            response.message = f"Failed to define/update scene: {str(e)}"
+            self.get_logger().error(response.message)
         return response
 
     async def _process_request(self, request: ChangeScene.Request) -> tuple[bool, str]:
