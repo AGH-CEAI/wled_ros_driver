@@ -176,6 +176,7 @@ class AsyncServiceWledNode(Node):
                     stop=pars.stop,
                     color_primary=pars.color,
                     transition=1,
+                    effect=pars.effect,
                 )
                 await led.master(on=True)
             return True, "Scene complete"
@@ -301,7 +302,10 @@ class AsyncServiceWledNode(Node):
             section_data = {"start": 0, "stop": self.led_count}
 
         return RunLightsData(
-            scene_function=scene_function, **scene_data, **section_data
+            scene_function=scene_function,
+            **scene_data,
+            **section_data,
+            effect=request.effect,
         )
 
     def _parse_scene_params(self, params_list: list) -> dict:
@@ -384,8 +388,6 @@ class AsyncServiceWledNode(Node):
                 else self.led_count
             )
         except ValueError:
-            self.get_logger().info("err0r")
-
             return {"start": 0, "stop": self.led_count}
 
         return section_params

@@ -13,6 +13,7 @@ class RunLightsData:
     brightness: int
     start: int
     stop: int
+    effect: str
 
     def __len__(self) -> int:
         return len(self.__slots__)
