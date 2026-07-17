@@ -1,4 +1,5 @@
 string scene
+string section
 string optional_params
 ---
 bool success
