@@ -131,7 +131,7 @@ class AsyncServiceWledNode(Node):
         Returns:
             str: Confirmation message indicating the scene was set.
         """
-        self.get_logger().info(f"brightness is: {pars.brightness}")
+        self.get_logger().info(f"{pars.brightness},{pars.color}")
         try:
             async with WLED(self.wled_url) as led:
                 await led.segment(
@@ -206,7 +206,7 @@ class AsyncServiceWledNode(Node):
         """
         METHODS_MAP = {
             SceneFunction.CHANGE_SCENE: self.scene_x,
-            SceneFunction.TURN_OFF: self.scene_off,
+            SceneFunction.SCENE_OFF: self.scene_off,
         }
 
         self.get_logger().info(
@@ -272,16 +272,15 @@ class AsyncServiceWledNode(Node):
         }
 
         """
-        result = SceneData
         try:
-            result.brightness = int(params_list[0]) if len(params_list) > 0 else 255
-            result.start = int(params_list[1]) if len(params_list) > 1 else 0
-            result.stop = int(params_list[2]) if len(params_list) > 2 else 72
+            brightness = int(params_list[0]) if len(params_list) > 0 else 255
+            start = int(params_list[1]) if len(params_list) > 1 else 0
+            stop = int(params_list[2]) if len(params_list) > 2 else 72
             color_red = int(params_list[3]) if len(params_list) > 3 else 255
             color_green = int(params_list[4]) if len(params_list) > 4 else 255
             color_blue = int(params_list[5]) if len(params_list) > 5 else 255
-            result.color = [color_red, color_green, color_blue]
-
+            color = [color_red, color_green, color_blue]
+            result = SceneData(brightness, start, stop, color)
         except ValueError as e:
             self.get_logger().error(f"Invalid parameter value: {e}")
             result = SceneData(
