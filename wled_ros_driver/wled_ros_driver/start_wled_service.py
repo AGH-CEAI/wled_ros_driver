@@ -44,7 +44,6 @@ class AsyncServiceWledNode(Node):
             allow_undeclared_parameters=True,
             automatically_declare_parameters_from_overrides=True,
         )
-
         self._load_variables()
         self.add_on_set_parameters_callback(self._parameter_callback)
 
