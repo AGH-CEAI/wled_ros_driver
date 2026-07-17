@@ -8,8 +8,6 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class SceneData:
     brightness: int
-    start: int
-    stop: int
     color: list
 
     def __len__(self) -> int:
