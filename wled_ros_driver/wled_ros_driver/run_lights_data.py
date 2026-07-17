@@ -11,12 +11,12 @@ class RunLightsData:
     scene_function: SceneFunction
     color: list
     brightness: int
-    start: int
-    stop: int
+    start_led_id: int
+    stop_led_id: int
 
     def __len__(self) -> int:
         return len(self.__slots__)
 
     def __str__(self) -> str:
 
-        return f"color:{self.color}, brightness:{self.brightness}, start:{self.start}, stop:{self.stop}"
+        return f"color:{self.color}, brightness:{self.brightness}, start:{self.start_led_id}, stop:{self.stop_led_id}"

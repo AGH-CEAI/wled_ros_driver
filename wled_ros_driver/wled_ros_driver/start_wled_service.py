@@ -160,7 +160,7 @@ class AsyncServiceWledNode(Node):
         - Turns on the master switch for LEDs.
 
         Args:
-            pars (dict): Dictionary containing following parameters: brightness, start, stop, color[red, green, blue].
+            pars (dict): Dictionary containing following parameters: brightness, start_led_id, stop_led_id, color[red, green, blue].
 
         Returns:
             str: Confirmation message indicating the scene was set.
@@ -172,8 +172,8 @@ class AsyncServiceWledNode(Node):
                     on=True,
                     brightness=pars.brightness,
                     segment_id=0,
-                    start=pars.start,
-                    stop=pars.stop,
+                    start=pars.start_led_id,
+                    stop=pars.stop_led_id,
                     color_primary=pars.color,
                     transition=1,
                 )
@@ -261,7 +261,7 @@ class AsyncServiceWledNode(Node):
             request: The service request object containing the 'scene' attribute.
 
         Returns:
-            RunLightsData: Object containing brightness, color, start, stop, and function to run leds.
+            RunLightsData: Object containing brightness, color, start_led_id, stop_led_id, and function to run leds.
         """
 
         scene_key = (
@@ -294,11 +294,11 @@ class AsyncServiceWledNode(Node):
         if section_key == "section_custom":
             section_data = self._parse_section_params(request.optional_params.split())
         elif section_key == "section_all":
-            section_data = {"start": 0, "stop": self.led_count}
+            section_data = {"start_led_id": 0, "stop_led_id": self.led_count}
         elif section_key in self.sections.keys():
             section_data = asdict(self.sections[section_key])
         else:
-            section_data = {"start": 0, "stop": self.led_count}
+            section_data = {"start_led_id": 0, "stop_led_id": self.led_count}
 
         return RunLightsData(
             scene_function=scene_function, **scene_data, **section_data
@@ -356,8 +356,8 @@ class AsyncServiceWledNode(Node):
 
         Returns:
         {
-            start: (int),
-            stop: (int)
+            start_led_id: (int),
+            stop_led_id: (int)
         }
 
         """
@@ -373,12 +373,12 @@ class AsyncServiceWledNode(Node):
         section_params = {}
 
         try:
-            section_params["start"] = (
+            section_params["start_led_id"] = (
                 int(params_list[1])
                 if len(params_list) > 1 and int(params_list[1]) > 0
                 else 0
             )
-            section_params["stop"] = (
+            section_params["stop_led_id"] = (
                 int(params_list[2])
                 if len(params_list) > 2 and int(params_list[2]) < self.led_count
                 else self.led_count
@@ -386,7 +386,7 @@ class AsyncServiceWledNode(Node):
         except ValueError:
             self.get_logger().info("err0r")
 
-            return {"start": 0, "stop": self.led_count}
+            return {"start_led_id": 0, "stop_led_id": self.led_count}
 
         return section_params
 
