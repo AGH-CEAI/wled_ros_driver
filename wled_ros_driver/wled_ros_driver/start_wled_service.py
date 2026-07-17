@@ -44,7 +44,6 @@ class AsyncServiceWledNode(Node):
             allow_undeclared_parameters=True,
             automatically_declare_parameters_from_overrides=True,
         )
-
         self._load_variables()
         self.add_on_set_parameters_callback(self._parameter_callback)
 
@@ -98,6 +97,9 @@ class AsyncServiceWledNode(Node):
             if param.name == "wled_url":
                 self.wled_url = param.value
                 self.get_logger().info("Updated led ip: " + self.wled_url)
+            if param.name == "led_count":
+                self.led_count = param.value
+                self.get_logger().info("Updated led number: " + self.wled_url)
 
             if param.name.startswith("scenes."):
                 values = param.name.split(".")
@@ -110,6 +112,21 @@ class AsyncServiceWledNode(Node):
                     edited_scene = asdict(self.scenes[scene_name])
                     edited_scene[param_name] = param.value
                     self.scenes[scene_name] = SceneData(**edited_scene)
+
+                else:
+                    return SetParametersResult(successful=False)
+
+            if param.name.startswith("sections."):
+                values = param.name.split(".")
+                self.get_logger().info(f"values : {values}")
+
+                if len(values) == 3:
+                    _, section_name, param_name = values
+                    if section_name not in self.sections:
+                        return SetParametersResult(successful=False)
+                    edited_section = asdict(self.sections[section_name])
+                    edited_section[param_name] = param.value
+                    self.sections[section_name] = SectionData(**edited_section)
 
                 else:
                     return SetParametersResult(successful=False)
@@ -236,16 +253,15 @@ class AsyncServiceWledNode(Node):
 
     def _prepare_request_params(self, request: ChangeScene.Request) -> RunLightsData:
         """
-        Extracts and normalizes the requested scene name from the service request.
-        If the scene is not specified or not recognized, defaults to 'scene_off'.
-        It also creates params dict, with all data needed by led control based on either on data provided in request or selected form availibile presets.
+        Extracts and normalizes the requested scene and section name from the service request.
+        If not recognized, default values are scene_off and section_all.
+        It returns RunLightsData object that contains all necessary data to run selected led configuration
 
         Args:
             request: The service request object containing the 'scene' attribute.
 
         Returns:
-            function_name (str): name of a function to run in order to get desired led behaviour.
-            params (dict): Dictionary containing all parameters describing desired led behaviour (brightness,start,stop,color).
+            RunLightsData: Object containing brightness, color, start, stop, and function to run leds.
         """
 
         scene_key = (
@@ -278,18 +294,44 @@ class AsyncServiceWledNode(Node):
         if section_key == "section_custom":
             section_data = self._parse_section_params(request.optional_params.split())
         elif section_key == "section_all":
-            section_data = {"start": 0, "stop": 44}
+            section_data = {"start": 0, "stop": self.led_count}
         elif section_key in self.sections.keys():
             section_data = asdict(self.sections[section_key])
         else:
-            section_data = {"start": 0, "stop": 44}
+            section_data = {"start": 0, "stop": self.led_count}
 
         return RunLightsData(
             scene_function=scene_function, **scene_data, **section_data
         )
 
     def _parse_scene_params(self, params_list: list) -> dict:
+        """
+        Parse a list of string parameters to create scene data.
+
+        Parameters (all optional, default values used if missing or invalid):
+            params_list[0]: brightness (int, default 255)
+            params_list[3]: red color value (int, default 255)
+            params_list[4]: green color value (int, default 255)
+            params_list[5]: blue color value (int, default 255)
+
+        Returns:
+        {
+            brightness: (int),
+            color: (array of 3 ints: (red, green, blue))
+        }
+
+        """
+
         scene_params = {}
+
+        # placeholder function to allow for custom scene with lower number of parameters
+        # to be replaces with custom service
+        if len(params_list) == 4:
+            params_list.extend([None] * (6 - len(params_list)))
+
+            params_list[5] = params_list[3]
+            params_list[4] = params_list[2]
+            params_list[3] = params_list[1]
 
         try:
             scene_params["brightness"] = (
@@ -305,6 +347,29 @@ class AsyncServiceWledNode(Node):
         return scene_params
 
     def _parse_section_params(self, params_list: list) -> dict:
+        """
+        Parse a list of string parameters to create section data.
+
+        Parameters (all optional, default values used if missing or invalid):
+            params_list[1]: start LED index (int, default 0)
+            params_list[2]: stop LED index (int, default self.led_count)
+
+        Returns:
+        {
+            start: (int),
+            stop: (int)
+        }
+
+        """
+
+        # placeholder function to allow for custom section with lower number of parameters
+        # to be replaces with custom service
+        if len(params_list) == 2:
+            params_list.extend([None] * (6 - len(params_list)))
+
+            params_list[2] = params_list[1]
+            params_list[1] = params_list[0]
+
         section_params = {}
 
         try:
@@ -324,47 +389,6 @@ class AsyncServiceWledNode(Node):
             return {"start": 0, "stop": self.led_count}
 
         return section_params
-
-    def _parse_params_from_array(self, params_list: list) -> SceneData:
-        """
-        Parse a list of string parameters for custom WLED scene control.
-
-        Parameters (all optional, default values used if missing or invalid):
-            params_list[0]: brightness (int, default 255)
-            params_list[1]: start LED index (int, default 0)
-            params_list[2]: stop LED index (int, default 72)
-            params_list[3]: red color value (int, default 255)
-            params_list[4]: green color value (int, default 255)
-            params_list[5]: blue color value (int, default 255)
-
-        Returns:
-        {
-            brightness: (int),
-            start: (int),
-            stop: (int),
-            color: (array of 3 ints: (red, green, blue))
-        }
-
-        """
-        try:
-            brightness = int(params_list[0]) if len(params_list) > 0 else 255
-            start = int(params_list[1]) if len(params_list) > 1 else 0
-            stop = int(params_list[2]) if len(params_list) > 2 else 72
-            color_red = int(params_list[3]) if len(params_list) > 3 else 255
-            color_green = int(params_list[4]) if len(params_list) > 4 else 255
-            color_blue = int(params_list[5]) if len(params_list) > 5 else 255
-            color = [color_red, color_green, color_blue]
-            result = SceneData(brightness, start, stop, color)
-        except ValueError as e:
-            self.get_logger().error(f"Invalid parameter value: {e}")
-            result = SceneData(
-                brightness=255,
-                start=0,
-                stop=72,
-                color=[127, 127, 63],
-            )
-
-        return result
 
 
 def main(args=None):

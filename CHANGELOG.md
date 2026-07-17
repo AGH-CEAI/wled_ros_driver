@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Updated installation setup (`setup.py`) to correctly install launch and configuration files into the ROS 2 workspace share directory.
 * Updated `README.md` with instructions on how to use the new launch file
 * [PR-9](https://github.com/AGH-CEAI/wled_ros_driver/pull/9) - Moved hardcoded scene and ip variables to .yaml file.
+* [PR-4](https://github.com/AGH-CEAI/wled_ros_driver/pull/4) - Separated led control into sections and scenes.
 
 ### Deprecated
 ### Removed
