@@ -131,7 +131,7 @@ class AsyncServiceWledNode(Node):
         Returns:
             str: Confirmation message indicating the scene was set.
         """
-        self.get_logger().info(f"{pars.brightness},{pars.color}")
+        self.get_logger().info(f"Brightness: {pars.brightness}\nColor: {pars.color}")
         try:
             async with WLED(self.wled_url) as led:
                 await led.segment(
