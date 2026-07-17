@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * [PR-9](https://github.com/AGH-CEAI/wled_ros_driver/pull/9) - Moved hardcoded scene and ip variables to .yaml file.
+* [PR-14](https://github.com/AGH-CEAI/wled_ros_driver/pull/14) - Fixed errors that prevented from changing scenes after setting custom scene.
 
 ### Deprecated
 ### Removed
