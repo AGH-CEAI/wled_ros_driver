@@ -85,12 +85,13 @@ def main(args=None):
 
     # Provide the scene name as a command line argument or default to "one"
     scene = sys.argv[1] if len(sys.argv) > 1 else "scene_1"
-    section = sys.argv[2] if len(sys.argv) > 1 else "section_1"
+    section = sys.argv[2] if len(sys.argv) > 2 else "section_1"
+    effect = sys.argv[3] if len(sys.argv) > 3 else "solid"
 
-    optional_params = sys.argv[3] if len(sys.argv) > 2 else "None"
+    optional_params = sys.argv[4] if len(sys.argv) > 4 else "None"
 
     client.get_logger().info(
-        f"Sending request for scene: {scene} | {section}| {optional_params}"
+        f"Sending request for scene: {scene} | {effect} |{section}| {optional_params}"
     )
     client.send_request(scene, section, optional_params)
 
