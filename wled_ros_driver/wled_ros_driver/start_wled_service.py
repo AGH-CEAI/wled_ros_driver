@@ -10,6 +10,8 @@ from rclpy.node import Node
 from wled_interfaces.srv import ChangeScene
 from wled_ros_driver.scene_data import SceneData
 from wled_ros_driver.scene_function import SceneFunction
+from wled_ros_driver.color_data import Color
+
 from rcl_interfaces.msg import SetParametersResult
 from dataclasses import asdict
 
@@ -66,7 +68,12 @@ class AsyncServiceWledNode(Node):
             scene_name, scene_parameter = key.split(".")
             if scene_name not in loaded_scenes:
                 loaded_scenes[scene_name] = {}
-            loaded_scenes[scene_name][scene_parameter] = param.value
+            if scene_parameter == "color":
+                loaded_scenes[scene_name][scene_parameter] = Color(
+                    param.value[0], param.value[1], param.value[2]
+                )
+            else:
+                loaded_scenes[scene_name][scene_parameter] = param.value
         self.scenes = {}
         for scene_name in loaded_scenes.keys():
             self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
@@ -279,7 +286,7 @@ class AsyncServiceWledNode(Node):
             color_red = int(params_list[3]) if len(params_list) > 3 else 255
             color_green = int(params_list[4]) if len(params_list) > 4 else 255
             color_blue = int(params_list[5]) if len(params_list) > 5 else 255
-            color = [color_red, color_green, color_blue]
+            color = Color(color_red, color_green, color_blue)
             result = SceneData(brightness, start, stop, color)
         except ValueError as e:
             self.get_logger().error(f"Invalid parameter value: {e}")
@@ -287,7 +294,7 @@ class AsyncServiceWledNode(Node):
                 brightness=255,
                 start=0,
                 stop=72,
-                color=[127, 127, 63],
+                color=Color(127, 127, 63),
             )
 
         return result
