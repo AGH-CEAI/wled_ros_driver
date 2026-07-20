@@ -7,7 +7,7 @@ import asyncio
 from wled import WLED
 import rclpy
 from rclpy.node import Node
-from wled_interfaces.srv import ChangeScene, GetSections, DefineScene
+from wled_interfaces.srv import ChangeScene, DefineScene, GetScenes, GetSections
 from wled_ros_driver.scene_data import SceneData
 from wled_ros_driver.scene_function import SceneFunction
 from wled_ros_driver.section_data import SectionData
@@ -48,16 +48,20 @@ class AsyncServiceWledNode(Node):
         self._load_variables()
         self.add_on_set_parameters_callback(self._parameter_callback)
 
-        self.srv = self.create_service(
+        self.srv_change_scene = self.create_service(
             ChangeScene, "wled_scene_change", self._handle_change_scene
-        )
-
-        self.srv_get_section = self.create_service(
-            GetSections, "wled_get_sections", self._handle_get_sections
         )
 
         self.srv_define_scene = self.create_service(
             DefineScene, "wled_define_scene", self._handle_define_scene
+        )
+
+        self.srv_get_scenes = self.create_service(
+            GetScenes, "wled_get_scenes", self._handle_get_scenes
+        )
+
+        self.srv_get_sections = self.create_service(
+            GetSections, "wled_get_sections", self._handle_get_sections
         )
 
         self.get_logger().info("Async service node started")
@@ -232,11 +236,42 @@ class AsyncServiceWledNode(Node):
         response.message = result[1]
         return response
 
+    def _handle_get_scenes(
+        self, request: GetScenes.Request, response: GetScenes.Response
+    ) -> object:
+        """
+        Synchronous service handler for ROS 2 service requests.
+        Returns the lists of currently configured scenes's parmeters (lists of scene names, brightnesses and separate RGB values).
+        """
+        self.get_logger().info("GetScenes service called")
+
+        scene_names = []
+        brightnesses = []
+        colors_r = []
+        colors_g = []
+        colors_b = []
+
+        for name, data in self.scenes.items():
+            scene_names.append(name)
+            brightnesses.append(int(data.brightness))
+            colors_r.append(int(data.color[0]))
+            colors_g.append(int(data.color[1]))
+            colors_b.append(int(data.color[2]))
+
+        response.scene_names = scene_names
+        response.brightnesses = brightnesses
+        response.colors_r = colors_r
+        response.colors_g = colors_g
+        response.colors_b = colors_b
+
+        return response
+
     def _handle_get_sections(
         self, request: GetSections.Request, response: GetSections.Response
     ) -> object:
         """
-        Returns the list of currently configured sub-sections from loaded scenes.
+        Synchronous service handler for ROS 2 service requests.
+        Returns the lists of currently configured scetion's parmeters (lists of section names, starts and stops).
         """
         self.get_logger().info("GetSections service called")
 
@@ -244,7 +279,7 @@ class AsyncServiceWledNode(Node):
         starts = []
         stops = []
 
-        for name, data in self.scenes.items():
+        for name, data in self.sections.items():
             section_names.append(name)
             starts.append(int(data.start))
             stops.append(int(data.stop))
@@ -259,6 +294,7 @@ class AsyncServiceWledNode(Node):
         self, request: DefineScene.Request, response: DefineScene.Response
     ) -> object:
         """
+        Synchronous service handler for ROS 2 service requests.
         Dynamically registers or redefines a scene configuration during runtime.
         """
         name = request.scene_name
