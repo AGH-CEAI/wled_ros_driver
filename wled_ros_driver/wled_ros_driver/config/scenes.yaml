@@ -17,7 +17,7 @@ wled_service_node:
         brightness: 90
     sections:
       section_1:
-        start_led_id: 0
+        start_led_id: 4
         stop_led_id: 44
       section_2:
         start_led_id: 0

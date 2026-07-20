@@ -184,7 +184,7 @@ class AsyncServiceWledNode(Node):
                 await led.segment(
                     on=True,
                     brightness=pars.brightness,
-                    segment_id=0,
+                    segment_id=1,
                     start=pars.start_led_id,
                     stop=pars.stop_led_id,
                     color_primary=pars.color,
