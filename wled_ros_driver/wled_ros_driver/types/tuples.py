@@ -5,7 +5,6 @@
 from typing import NamedTuple
 
 
-# 1. Define the named tuple structure
 class Color(NamedTuple):
     R: int
     G: int
