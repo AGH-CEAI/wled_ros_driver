@@ -7,8 +7,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True, slots=True)
 class SectionData:
-    start: int
-    stop: int
+    start_led_id: int
+    stop_led_id: int
 
     def __len__(self) -> int:
         return len(self.__slots__)

@@ -13,11 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * [PR-1](https://github.com/AGH-CEAI/wled_ros_driver/pull/1) - Basic scene functionalities in ROS2 node.
 
 ### Changed
-
-* Updated installation setup (`setup.py`) to correctly install launch and configuration files into the ROS 2 workspace share directory.
-* Updated `README.md` with instructions on how to use the new launch file
-* [PR-9](https://github.com/AGH-CEAI/wled_ros_driver/pull/9) - Moved hardcoded scene and ip variables to .yaml file.
-* [PR-4](https://github.com/AGH-CEAI/wled_ros_driver/pull/4) - Separated led control into sections and scenes.
+* [PR-14](https://github.com/AGH-CEAI/wled_ros_driver/pull/13) Added ROS 2 launch file (`wled_service.launch.py`) to automate node startup and parameters injection.
+* [PR-12](https://github.com/AGH-CEAI/wled_ros_driver/pull/12) - Updated installation setup (`setup.py`) to correctly install launch and configuration files into the ROS 2 workspace share directory, updated `README.md` with instructions on how to use the new launch file
+* [PR-9](https://github.com/AGH-CEAI/wled_ros_driver/pull/4) - Moved hardcoded scene and ip variables to .yaml file.
+* [PR-4](https://github.com/AGH-CEAI/wled_ros_driver/pull/7) - Separated led control into sections and scenes.
 
 ### Deprecated
 ### Removed

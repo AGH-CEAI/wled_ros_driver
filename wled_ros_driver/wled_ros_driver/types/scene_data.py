@@ -3,12 +3,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
+from wled_ros_driver.types.color_data import Color
 
 
 @dataclass(frozen=True, slots=True)
 class SceneData:
     brightness: int
-    color: list
+    start: int
+    stop: int
+    effect: str
+    color: Color
 
     def __len__(self) -> int:
         return len(self.__slots__)
