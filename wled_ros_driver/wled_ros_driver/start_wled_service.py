@@ -294,7 +294,7 @@ class AsyncServiceWledNode(Node):
                 brightness=255,
                 start=0,
                 stop=72,
-                color=Color(127, 127, 63),
+                color=Color(R=127, G=127, B=63),
             )
 
         return result
