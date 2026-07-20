@@ -15,4 +15,4 @@ class SceneData:
         return len(self.__slots__)
 
     def __str__(self) -> str:
-        return f"color:{self.color}, brightness:{self.brightness}"
+        return f"color:{self.color}, brightness:{self.brightness}, start:{self.start}, stop:{self.stop}, color:{self.color}"
