@@ -353,10 +353,11 @@ class AsyncServiceWledNode(Node):
             color_red = int(params_list[3]) if len(params_list) > 3 else 255
             color_green = int(params_list[4]) if len(params_list) > 4 else 255
             color_blue = int(params_list[5]) if len(params_list) > 5 else 255
-            scene_params["color"] = [color_red, color_green, color_blue]
-        except ValueError:
-            return {"brightness": 255, "color": [127, 127, 63]}
+            scene_params["color"] = Color(color_red, color_green, color_blue)
 
+            # result = SceneData(brightness,, stop, color)
+        except ValueError as e:
+            self.get_logger().error(f"Invalid parameter value: {e}")
         return scene_params
 
     def _parse_section_params(self, params_list: list) -> dict:
