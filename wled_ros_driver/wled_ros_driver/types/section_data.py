@@ -6,12 +6,9 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True, slots=True)
-class SceneData:
-    brightness: int
-    color: list
+class SectionData:
+    start_led_id: int
+    stop_led_id: int
 
     def __len__(self) -> int:
         return len(self.__slots__)
-
-    def __str__(self) -> str:
-        return f"color:{self.color}, brightness:{self.brightness}"
