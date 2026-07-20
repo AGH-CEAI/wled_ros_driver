@@ -378,11 +378,11 @@ class AsyncServiceWledNode(Node):
         )
         self.get_logger().info(f"section_key: {section_key}")
 
-        if scene_key == "scene_custom":
+        if scene_key == RosParams.SCENE_CUSTOM_KEY:
             scene_function = SceneFunction.CHANGE_SCENE
             scene_data = self._parse_scene_params(request.optional_params.split())
 
-        elif RosParams.SCENE_OFF_KEY:
+        elif scene_key == RosParams.SCENE_OFF_KEY:
             scene_function = SceneFunction.SCENE_OFF
             scene_data = {"brightness": 0, "color": [0, 0, 0]}
 
