@@ -37,7 +37,7 @@ class AsyncServiceWledNode(Node):
         - Sets the node name to 'wled_service_node'.
         - Calls function to get parameters provided in .yaml file
         - Sets callback function meant to update function internal variables when ros parameter is changed
-        - Creates the 'wled_scene_change' service using the ChangeScene interface.
+        - Creates the 'wled_change_scene' service using the ChangeScene interface.
         - Registers the _handle_service method as the service callback.
         - Logs a message indicating the service node has started.
         """
@@ -51,7 +51,7 @@ class AsyncServiceWledNode(Node):
         self.add_on_set_parameters_callback(self._parameter_callback)
 
         self.srv_change_scene = self.create_service(
-            ChangeScene, "wled_scene_change", self._handle_change_scene
+            ChangeScene, "wled_change_scene", self._handle_change_scene
         )
 
         self.srv_define_scene = self.create_service(
@@ -293,8 +293,8 @@ class AsyncServiceWledNode(Node):
 
         for name, data in self.sections.items():
             section_names.append(name)
-            starts.append(int(data.start))
-            stops.append(int(data.stop))
+            starts.append(int(data.start_led_id))
+            stops.append(int(data.stop_led_id))
 
         response.section_names = section_names
         response.starts = starts
@@ -314,7 +314,7 @@ class AsyncServiceWledNode(Node):
 
         try:
             self.scenes[name] = SceneData(
-                color=Color(list(request.color)), brightness=int(request.brightness)
+                color=Color(*list(request.color)), brightness=int(request.brightness)
             )
             response.success = True
             response.message = f"Scene '{name}' successfully defined/updated."
