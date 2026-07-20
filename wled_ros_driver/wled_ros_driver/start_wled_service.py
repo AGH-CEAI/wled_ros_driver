@@ -83,6 +83,7 @@ class AsyncServiceWledNode(Node):
             if section_name not in loaded_sections:
                 loaded_sections[section_name] = {}
             loaded_sections[section_name][section_parameter] = param.value
+
         self.sections = {}
         for section_name in loaded_sections.keys():
             self.sections[section_name] = SectionData(**loaded_sections[section_name])

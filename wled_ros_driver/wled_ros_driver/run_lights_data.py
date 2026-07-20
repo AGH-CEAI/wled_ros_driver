@@ -18,5 +18,4 @@ class RunLightsData:
         return len(self.__slots__)
 
     def __str__(self) -> str:
-
         return f"color:{self.color}, brightness:{self.brightness}, start:{self.start_led_id}, stop:{self.stop_led_id}"
