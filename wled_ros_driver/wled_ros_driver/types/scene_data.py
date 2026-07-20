@@ -9,9 +9,6 @@ from wled_ros_driver.types.color_data import Color
 @dataclass(frozen=True, slots=True)
 class SceneData:
     brightness: int
-    start: int
-    stop: int
-    effect: str
     color: Color
 
     def __len__(self) -> int:
