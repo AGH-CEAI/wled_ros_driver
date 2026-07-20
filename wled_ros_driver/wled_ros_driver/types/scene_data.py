@@ -3,20 +3,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
-from wled_ros_driver.scene_function import SceneFunction
+from wled_ros_driver.types.color_data import Color
 
 
 @dataclass(frozen=True, slots=True)
-class RunLightsData:
-    scene_function: SceneFunction
-    color: list
+class SceneData:
     brightness: int
-    start_led_id: int
-    stop_led_id: int
+    color: Color
 
     def __len__(self) -> int:
         return len(self.__slots__)
 
     def __str__(self) -> str:
-
-        return f"color:{self.color}, brightness:{self.brightness}, start:{self.start_led_id}, stop:{self.stop_led_id}"
+        return f"color:{self.color}, brightness:{self.brightness}"
