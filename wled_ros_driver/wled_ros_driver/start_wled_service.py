@@ -10,6 +10,8 @@ from rclpy.node import Node
 from wled_interfaces.srv import ChangeScene
 from wled_ros_driver.scene_data import SceneData
 from wled_ros_driver.scene_function import SceneFunction
+from wled_ros_driver.color_data import Color
+
 from rcl_interfaces.msg import SetParametersResult
 from dataclasses import asdict
 
@@ -66,7 +68,12 @@ class AsyncServiceWledNode(Node):
             scene_name, scene_parameter = key.split(".")
             if scene_name not in loaded_scenes:
                 loaded_scenes[scene_name] = {}
-            loaded_scenes[scene_name][scene_parameter] = param.value
+            if scene_parameter == "color":
+                loaded_scenes[scene_name][scene_parameter] = Color(
+                    param.value[0], param.value[1], param.value[2]
+                )
+            else:
+                loaded_scenes[scene_name][scene_parameter] = param.value
         self.scenes = {}
         for scene_name in loaded_scenes.keys():
             self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
@@ -131,7 +138,7 @@ class AsyncServiceWledNode(Node):
         Returns:
             str: Confirmation message indicating the scene was set.
         """
-        self.get_logger().info(f"brightness is: {pars.brightness}")
+        self.get_logger().info(f"Brightness: {pars.brightness}\nColor: {pars.color}")
         try:
             async with WLED(self.wled_url) as led:
                 await led.segment(
@@ -206,7 +213,7 @@ class AsyncServiceWledNode(Node):
         """
         METHODS_MAP = {
             SceneFunction.CHANGE_SCENE: self.scene_x,
-            SceneFunction.TURN_OFF: self.scene_off,
+            SceneFunction.SCENE_OFF: self.scene_off,
         }
 
         self.get_logger().info(
@@ -272,23 +279,22 @@ class AsyncServiceWledNode(Node):
         }
 
         """
-        result = SceneData
         try:
-            result.brightness = int(params_list[0]) if len(params_list) > 0 else 255
-            result.start = int(params_list[1]) if len(params_list) > 1 else 0
-            result.stop = int(params_list[2]) if len(params_list) > 2 else 72
+            brightness = int(params_list[0]) if len(params_list) > 0 else 255
+            start = int(params_list[1]) if len(params_list) > 1 else 0
+            stop = int(params_list[2]) if len(params_list) > 2 else 72
             color_red = int(params_list[3]) if len(params_list) > 3 else 255
             color_green = int(params_list[4]) if len(params_list) > 4 else 255
             color_blue = int(params_list[5]) if len(params_list) > 5 else 255
-            result.color = [color_red, color_green, color_blue]
-
+            color = Color(color_red, color_green, color_blue)
+            result = SceneData(brightness, start, stop, color)
         except ValueError as e:
             self.get_logger().error(f"Invalid parameter value: {e}")
             result = SceneData(
                 brightness=255,
                 start=0,
                 stop=72,
-                color=[127, 127, 63],
+                color=Color(R=127, G=127, B=63),
             )
 
         return result
