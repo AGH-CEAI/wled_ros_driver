@@ -34,7 +34,9 @@ class AsyncServiceWledClient(Node):
             self.get_logger().info("Service not available, waiting...")
         self.req = ChangeScene.Request()
 
-    def send_request(self, scene_name, section_name, optional_params=""):
+    def send_request(
+        self, scene_name: str, section_name: str, optional_params: str = ""
+    ) -> None:
         """
         Sends an asynchronous service request to change the WLED scene.
 
