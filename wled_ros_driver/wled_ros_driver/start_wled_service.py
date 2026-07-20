@@ -194,6 +194,31 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene"
 
+    async def scene_all(self, pars: RunLightsData) -> tuple[bool, str]:
+        """
+        Asynchronous method to set a custom LED scene using the WLED API.
+        Runs all available leds with selected Scene.
+
+        """
+        self.get_logger().info(f"{pars}")
+        try:
+            async with WLED(self.wled_url) as led:
+                for section in self.sections.values():
+                    await led.segment(
+                        on=True,
+                        brightness=pars.brightness,
+                        segment_id=section.section_id,
+                        start=section.start_led_id,
+                        stop=section.stop_led_id,
+                        color_primary=pars.color,
+                        transition=1,
+                    )
+                    await led.master(on=True)
+            return True, "Scene complete"
+        except Exception as e:
+            self.get_logger().error(f"Failed to fetch WLED info: {e}")
+            return False, "Failed to execute scene"
+
     async def scene_off(self, _pars: RunLightsData) -> tuple[bool, str]:
         """
         Asynchronous method to turn off all LEDs using the WLED API.
@@ -252,6 +277,7 @@ class AsyncServiceWledNode(Node):
         METHODS_MAP = {
             SceneFunction.CHANGE_SCENE: self.scene_x,
             SceneFunction.SCENE_OFF: self.scene_off,
+            SceneFunction.CHANGE_ALL: self.scene_all,
         }
 
         self.get_logger().info(
@@ -307,6 +333,7 @@ class AsyncServiceWledNode(Node):
             self.get_logger().info("FOUND MATCH")
             section_data = asdict(self.sections[section_key])
         else:
+            scene_function = SceneFunction.CHANGE_ALL
             section_data = {"start_led_id": 0, "stop_led_id": 0, "section_id": 0}
 
         return RunLightsData(
