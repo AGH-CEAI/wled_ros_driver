@@ -51,7 +51,7 @@ class AsyncServiceWledNode(Node):
         self.add_on_set_parameters_callback(self._parameter_callback)
 
         self.srv = self.create_service(
-            ChangeScene, "wled_scene_change", self._handle_service
+            ChangeScene, RosParams.SERVICE_NAME, self._handle_service
         )
 
         self.get_logger().info("Async service node started")
@@ -78,12 +78,12 @@ class AsyncServiceWledNode(Node):
         )
 
         loaded_scenes = {}
-        scenes_params = self.get_parameters_by_prefix("scenes")
+        scenes_params = self.get_parameters_by_prefix(RosParams.SCENES_YAML_NAME)
         for key, param in scenes_params.items():
             scene_name, scene_parameter = key.split(".")
             if scene_name not in loaded_scenes:
                 loaded_scenes[scene_name] = {}
-            if scene_parameter == "color":
+            if scene_parameter == RosParams.SCENES_COLOR_PARAMETER:
                 loaded_scenes[scene_name][scene_parameter] = Color(
                     param.value[0], param.value[1], param.value[2]
                 )
@@ -127,10 +127,8 @@ class AsyncServiceWledNode(Node):
                 self.led_count = param.value
                 self.get_logger().info("Updated led number: " + self.wled_url)
 
-            if param.name.startswith("scenes."):
+            if param.name.startswith(f"{RosParams.SCENES_YAML_NAME}."):
                 values = param.name.split(".")
-                self.get_logger().info(f"values : {values}")
-
                 if len(values) == 3:
                     _, scene_name, param_name = values
                     if scene_name not in self.scenes:
@@ -199,9 +197,9 @@ class AsyncServiceWledNode(Node):
         """
         Asynchronous method to set a custom LED scene using the WLED API.
         Runs all available leds with selected Scene.
-
         """
-        self.get_logger().info(f"ALLLLL: {pars}")
+
+        self.get_logger().info(f"{pars}")
         try:
             async with WLED(self.wled_url) as led:
                 for section in self.sections.values():
@@ -221,7 +219,7 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene"
 
-    async def scene_off(self, _pars: RunLightsData) -> tuple[bool, str]:
+    async def scene_off(self, pars: RunLightsData) -> tuple[bool, str]:
         """
         Asynchronous method to turn off all LEDs using the WLED API.
 
@@ -233,7 +231,26 @@ class AsyncServiceWledNode(Node):
         """
         try:
             async with WLED(self.wled_url) as led:
-                await led.master(on=False)
+                await led.segment(on=False, segment_id=pars.section_id)
+            return True, "Scene 'OFF' complete"
+        except Exception as e:
+            self.get_logger().error(f"Failed to fetch WLED info: {e}")
+            return False, "Failed to execute scene 'OFF'"
+
+    async def scene_off_all(self, pars: RunLightsData) -> tuple[bool, str]:
+        """
+        Asynchronous method to turn off all LEDs using the WLED API.
+
+        Args:
+            _: Unused parameter, kept for interface consistency.
+
+        Returns:
+            str: Confirmation message indicating the scene is turned off.
+        """
+        try:
+            async with WLED(self.wled_url) as led:
+                for section in self.sections.values():
+                    await led.segment(on=False, segment_id=section.section_id)
             return True, "Scene 'OFF' complete"
         except Exception as e:
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
@@ -280,6 +297,7 @@ class AsyncServiceWledNode(Node):
             SceneFunction.CHANGE_SCENE: self.scene_x,
             SceneFunction.SCENE_OFF: self.scene_off,
             SceneFunction.CHANGE_ALL: self.scene_all,
+            SceneFunction.SCENE_OFF_ALL: self.scene_off_all,
         }
 
         self.get_logger().info(
@@ -305,37 +323,44 @@ class AsyncServiceWledNode(Node):
 
         scene_key = (
             request.scene.lower()
-            if hasattr(request, "scene") and request.scene
+            if hasattr(request, RosParams.REQUEST_SCENE_KEY) and request.scene
             else RosParams.SCENE_OFF_KEY
         )
         section_key = (
             request.section.lower()
-            if hasattr(request, "section") and request.section
+            if hasattr(request, RosParams.REQUEST_SECTION_KEY) and request.section
             else RosParams.SECTION_ALL_KEY
         )
+        section_data = {}
+        scene_data = {}
 
-        # prepare scene data
+        # custom scene
         if scene_key == RosParams.SCENE_CUSTOM_KEY:
             scene_function = SceneFunction.CHANGE_SCENE
-            scene_data = self._parse_scene_params(request.optional_params.split())
-
+            scene_data = asdict(
+                self._parse_scene_params(request.optional_params.split())
+            )
+        # scene off
         elif scene_key == RosParams.SCENE_OFF_KEY:
             scene_function = SceneFunction.SCENE_OFF
-            scene_data = {"brightness": 0, "color": [0, 0, 0]}
-
+        # preset scene
         elif scene_key in self.scenes.keys():
             scene_function = SceneFunction.CHANGE_SCENE
             scene_data = asdict(self.scenes[scene_key])
+        # default behaviour
         else:
             scene_function = SceneFunction.SCENE_OFF
-            scene_data = asdict(self.scenes[scene_key])
 
-        # prepare section data
+        # execute on selected section
         if section_key in self.sections.keys():
             section_data = asdict(self.sections[section_key])
+
+        # execute on all sections
         else:
-            scene_function = SceneFunction.CHANGE_ALL
-            section_data = {"start_led_id": 0, "stop_led_id": 0, "section_id": 0}
+            if scene_function == SceneFunction.SCENE_OFF:
+                scene_function = SceneFunction.SCENE_OFF_ALL
+            else:
+                scene_function = SceneFunction.CHANGE_ALL
 
         return RunLightsData(
             scene_function=scene_function,
@@ -361,21 +386,14 @@ class AsyncServiceWledNode(Node):
         }
 
         """
-
-        scene_params = {}
-
-        try:
-            scene_params["brightness"] = (
-                int(params_list[0]) if len(params_list) > 0 else 255
-            )
-            color_red = int(params_list[3]) if len(params_list) > 3 else 255
-            color_green = int(params_list[4]) if len(params_list) > 4 else 255
-            color_blue = int(params_list[5]) if len(params_list) > 5 else 255
-            scene_params["color"] = Color(color_red, color_green, color_blue)
-
-        except ValueError as e:
-            self.get_logger().error(f"Invalid parameter value: {e}")
-        return scene_params
+        return SceneData(
+            brightness=int(params_list[0]) if len(params_list) > 0 else 255,
+            color=Color(
+                R=int(params_list[1]) if len(params_list) > 1 else 255,
+                G=int(params_list[2]) if len(params_list) > 2 else 255,
+                B=int(params_list[3]) if len(params_list) > 3 else 255,
+            ),
+        )
 
 
 def main(args=None):
