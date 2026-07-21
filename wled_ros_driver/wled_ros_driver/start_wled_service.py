@@ -201,7 +201,7 @@ class AsyncServiceWledNode(Node):
         Runs all available leds with selected Scene.
 
         """
-        self.get_logger().info(f"{pars}")
+        self.get_logger().info(f"ALLLLL: {pars}")
         try:
             async with WLED(self.wled_url) as led:
                 for section in self.sections.values():
@@ -213,6 +213,7 @@ class AsyncServiceWledNode(Node):
                         stop=section.stop_led_id,
                         color_primary=pars.color,
                         transition=1,
+                        effect=pars.effect,
                     )
                     await led.master(on=True)
             return True, "Scene complete"
@@ -331,7 +332,6 @@ class AsyncServiceWledNode(Node):
 
         # prepare section data
         if section_key in self.sections.keys():
-            self.get_logger().info("FOUND MATCH")
             section_data = asdict(self.sections[section_key])
         else:
             scene_function = SceneFunction.CHANGE_ALL
