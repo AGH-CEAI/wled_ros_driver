@@ -20,11 +20,11 @@ class SectionData:
 @dataclass(frozen=True, slots=True)
 class RunLightsData:
     scene_function: SceneFunction
-    color: Color
-    brightness: int
-    section_id: int
-    start_led_id: int
-    stop_led_id: int
+    color: Color = Color(0, 0, 0)
+    brightness: int = 0
+    section_id: int = 0
+    start_led_id: int = 0
+    stop_led_id: int = 0
 
     def __len__(self) -> int:
         return len(self.__slots__)
