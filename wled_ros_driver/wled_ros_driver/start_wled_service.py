@@ -61,10 +61,6 @@ class AsyncServiceWledNode(Node):
         """
         Loads data provided by ROS via YAML file
         """
-        loop = asyncio.get_event_loop()
-        self.sections = loop.run_until_complete(
-            self._load_segments_from_wled_controller()
-        )
 
         self.wled_url = (
             self.get_parameter(RosParams.WLED_CONTROLLER_URL)
@@ -75,6 +71,10 @@ class AsyncServiceWledNode(Node):
             self.get_parameter(RosParams.WLED_SEGMENTS_COUNT)
             .get_parameter_value()
             .integer_value
+        )
+        loop = asyncio.get_event_loop()
+        self.sections = loop.run_until_complete(
+            self._load_segments_from_wled_controller(self.wled_url)
         )
 
         loaded_scenes = {}
@@ -93,7 +93,7 @@ class AsyncServiceWledNode(Node):
         for scene_name in loaded_scenes.keys():
             self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
 
-    async def _load_segments_from_wled_controller(self) -> dict:
+    async def _load_segments_from_wled_controller(self, wled_url) -> dict:
         """
         Asynchronous method to fetch segments configuration from WLED controller.
 
@@ -101,7 +101,7 @@ class AsyncServiceWledNode(Node):
             Dict<String,SectionData>
         """
 
-        async with WLED("192.168.100.50") as led:
+        async with WLED(self.wled_url) as led:
             device = await led.update()
             loaded_sections = {}
 
@@ -332,13 +332,10 @@ class AsyncServiceWledNode(Node):
         section_data = {}
         scene_data = {}
 
-        # custom scene
         if scene_key == RosParams.SCENE_CUSTOM_KEY:
             scene_function = SceneFunction.CHANGE_SCENE
-            scene_data = asdict(
-                self._parse_scene_params(request.optional_params.split())
-            )
-        # scene off
+            scene_data = self._parse_scene_params(request.optional_params.split())
+
         elif scene_key == RosParams.SCENE_OFF_KEY:
             scene_function = SceneFunction.SCENE_OFF
         # preset scene
@@ -349,11 +346,11 @@ class AsyncServiceWledNode(Node):
         else:
             scene_function = SceneFunction.SCENE_OFF
 
-        # execute on selected section
+        # select section from preset
         if section_key in self.sections.keys():
             section_data = asdict(self.sections[section_key])
 
-        # execute on all sections
+        # select all sections
         else:
             if scene_function == SceneFunction.SCENE_OFF:
                 scene_function = SceneFunction.SCENE_OFF_ALL
@@ -381,14 +378,14 @@ class AsyncServiceWledNode(Node):
         }
 
         """
-        return SceneData(
-            brightness=int(params_list[0]) if len(params_list) > 0 else 255,
-            color=Color(
+        return {
+            "brightness": int(params_list[0]) if len(params_list) > 0 else 255,
+            "color": Color(
                 R=int(params_list[1]) if len(params_list) > 1 else 255,
                 G=int(params_list[2]) if len(params_list) > 2 else 255,
                 B=int(params_list[3]) if len(params_list) > 3 else 255,
             ),
-        )
+        }
 
 
 def main(args=None):
