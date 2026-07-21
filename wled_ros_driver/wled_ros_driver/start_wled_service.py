@@ -93,7 +93,7 @@ class AsyncServiceWledNode(Node):
         for scene_name in loaded_scenes.keys():
             self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
 
-    async def _load_segments_from_wled_controller(self, wled_url) -> dict:
+    async def _load_segments_from_wled_controller(self) -> dict:
         """
         Asynchronous method to fetch segments configuration from WLED controller.
 
