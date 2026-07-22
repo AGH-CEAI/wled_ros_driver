@@ -2,9 +2,18 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-from wled_ros_driver.types.tuples import Color
 from wled_ros_driver.types.enum_types import SceneFunction
 from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class Color:
+    R: int
+    G: int
+    B: int
+
+    def __str__(self) -> str:
+        return f"R:{self.R} G:{self.G} B:{self.B}"
 
 
 @dataclass(frozen=True, slots=True)
