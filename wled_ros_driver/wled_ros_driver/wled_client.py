@@ -35,7 +35,11 @@ class AsyncServiceWledClient(Node):
         self.req = ChangeScene.Request()
 
     def send_request(
-        self, scene_name: str, section_name: str, optional_params: str = ""
+        self,
+        scene_name: str,
+        section_name: str,
+        effect_id: int,
+        optional_params: str = "",
     ) -> None:
         """
         Sends an asynchronous service request to change the WLED scene.
@@ -50,6 +54,8 @@ class AsyncServiceWledClient(Node):
         """
         self.req.scene = scene_name
         self.req.section = section_name
+        self.req.effect_id = effect_id
+
         self.req.optional_params = optional_params
         self.future = self.client.call_async(self.req)
         self.future.add_done_callback(self.response_callback)
@@ -88,14 +94,14 @@ def main(args=None):
     # Provide the scene name as a command line argument or default to "one"
     scene = sys.argv[1] if len(sys.argv) > 1 else "scene_1"
     section = sys.argv[2] if len(sys.argv) > 2 else "section_1"
-    effect = sys.argv[3] if len(sys.argv) > 3 else "solid"
+    effect = int(sys.argv[3]) if len(sys.argv) > 3 else 0
 
     optional_params = sys.argv[4] if len(sys.argv) > 4 else "None"
 
     client.get_logger().info(
-        f"Sending request for scene: {scene} | {effect} |{section}| {optional_params}"
+        f"Sending request for scene: {scene} | {section} | {effect} | {optional_params}"
     )
-    client.send_request(scene, section, optional_params)
+    client.send_request(scene, section, effect, optional_params)
 
     # Spin until response received
     rclpy.spin(client)

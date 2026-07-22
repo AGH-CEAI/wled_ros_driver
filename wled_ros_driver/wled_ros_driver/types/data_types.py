@@ -13,7 +13,7 @@ class Color:
     B: int
 
     def __str__(self) -> str:
-        return f"asdR:{self.R} G:{self.G} B:{self.B}"
+        return f"R:{self.R} G:{self.G} B:{self.B}"
 
     @property
     def as_list(self) -> list[int]:
@@ -44,7 +44,7 @@ class RunLightsData:
         return len(self.__slots__)
 
     def __str__(self) -> str:
-        return f"color:{self.color}, brightness:{self.brightness}, start:{self.start_led_id}, stop:{self.stop_led_id}"
+        return f"color:{self.color}, brightness:{self.brightness}, start:{self.start_led_id}, stop:{self.stop_led_id}, effect:{self.effect}"
 
 
 @dataclass(frozen=True, slots=True)

@@ -48,7 +48,6 @@ class AsyncServiceWledNode(Node):
             allow_undeclared_parameters=True,
             automatically_declare_parameters_from_overrides=True,
         )
-
         self._load_variables()
         self.add_on_set_parameters_callback(self._parameter_callback)
 
@@ -104,7 +103,7 @@ class AsyncServiceWledNode(Node):
 
     async def _load_data_from_wled_controller(self) -> dict:
         """
-        Asynchronous method to fetch segments configuration from WLED controller.
+        Asynchronous method to fetch configuration from WLED controller.
 
         Returns:
             Dict<String,SectionData>
@@ -188,10 +187,10 @@ class AsyncServiceWledNode(Node):
         - Turns on the master switch for LEDs.
 
         Args:
-            pars (dict): Dictionary containing following parameters: brightness, start_led_id, stop_led_id, color[red, green, blue].
+            pars (RunLightsData): Object containing following parameters: brightness, start_led_id, stop_led_id, color[red, green, blue].
 
         Returns:
-            str: Confirmation message indicating the scene was set.
+            bool, str: Confirmation message indicating the scene was set.
         """
         self.get_logger().info(f"{pars}")
         try:
@@ -240,13 +239,13 @@ class AsyncServiceWledNode(Node):
 
     async def scene_off(self, pars: RunLightsData) -> tuple[bool, str]:
         """
-        Asynchronous method to turn off all LEDs using the WLED API.
+        Asynchronous method to turn off selected LEDs using the WLED API.
 
         Args:
-            _: Unused parameter, kept for interface consistency.
+            pars (RunLightsData): Object containing following parameters: brightness, start_led_id, stop_led_id, color[red, green, blue].
 
-        Returns:asdict
-            str: Confirmation message indicating the scene is turned off.
+        Returns:
+            bool, str: Confirmation message indicating the scene was set.
         """
         try:
             async with WLED(self.wled_url) as led:
@@ -256,15 +255,15 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to execute scene_off: {e}")
             return False, "Failed to execute scene 'OFF'"
 
-    async def scene_off_all(self, pars: RunLightsData) -> tuple[bool, str]:
+    async def scene_off_all(self, _pars: RunLightsData) -> tuple[bool, str]:
         """
         Asynchronous method to turn off all LEDs using the WLED API.
 
         Args:
-            _: Unused parameter, kept for interface consistency.
+            _pars (RunLightsData): Unused parameter kept for interface consistency.
 
         Returns:
-            str: Confirmation message indicating the scene is turned off.
+            bool, str: Confirmation message indicating the scene was set.
         """
         try:
             async with WLED(self.wled_url) as led:
@@ -274,7 +273,7 @@ class AsyncServiceWledNode(Node):
 
             return True, "Scene 'OFF' complete"
         except Exception as e:
-            self.get_logger().error(f"Failed to execute scene_off_all: {e}")
+            self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
     def _handle_service(
@@ -322,7 +321,7 @@ class AsyncServiceWledNode(Node):
         }
 
         self.get_logger().info(
-            f"Requested scene: {request.scene} | section:{request.section} | params: {request.optional_params}"
+            f"Requested scene: {request.scene} | section:{request.section} |  effect_id:{request.effect_id} |params: {request.optional_params}"
         )
 
         params = self._prepare_request_params(request)
