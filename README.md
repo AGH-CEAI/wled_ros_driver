@@ -17,7 +17,7 @@ It is possible to modify this repository to fit your needs. **PRs are welcome!**
 Get you WLED controller, compatible led stripes and power supply. Connect electrically, power on and configure:
 - IP address
 - Number of leds
-- All segments you want to controll separatly
+- All segments you want to control separately
 
 Make sure the system works using UI provided by WLED Project.
 
