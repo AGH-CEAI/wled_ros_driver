@@ -13,14 +13,18 @@ class Color:
     B: int
 
     def __str__(self) -> str:
-        return f"R:{self.R} G:{self.G} B:{self.B}"
+        return f"asdR:{self.R} G:{self.G} B:{self.B}"
+
+    @property
+    def as_list(self) -> list[int]:
+        return [self.R, self.G, self.B]
 
 
 @dataclass(frozen=True, slots=True)
 class SectionData:
-    section_id: int
-    start_led_id: int
-    stop_led_id: int
+    section_id: int = 0
+    start_led_id: int = 0
+    stop_led_id: int = 0
 
     def __len__(self) -> int:
         return len(self.__slots__)
@@ -29,12 +33,12 @@ class SectionData:
 @dataclass(frozen=True, slots=True)
 class RunLightsData:
     scene_function: SceneFunction
+    color: Color
+    brightness: int
+    section_id: int
+    start_led_id: int
+    stop_led_id: int
     effect: str = "Solid"
-    color: Color = Color(0, 0, 0)
-    brightness: int = 0
-    section_id: int = 0
-    start_led_id: int = 0
-    stop_led_id: int = 0
 
     def __len__(self) -> int:
         return len(self.__slots__)
@@ -45,8 +49,8 @@ class RunLightsData:
 
 @dataclass(frozen=True, slots=True)
 class SceneData:
-    brightness: int
-    color: Color
+    brightness: int = 255
+    color: Color = Color(0, 0, 0)
 
     def __len__(self) -> int:
         return len(self.__slots__)
