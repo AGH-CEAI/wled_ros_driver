@@ -10,3 +10,4 @@ class SceneFunction(StrEnum):
     CHANGE_ALL = "scene_all"
     SCENE_OFF = "scene_off"
     SCENE_OFF_ALL = "scene_off_all"
+    NO_CHANGE = "scene_no_change"

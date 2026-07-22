@@ -276,6 +276,18 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
+    async def do_nothing(self, _pars):
+        """
+        Empty method to be executed on wrong parameter entry.
+        Args:
+            _pars (RunLightsData): Unused parameter kept for interface consistency.
+
+        Returns:
+            bool, str: Error message indicating that scene key was not recognized.
+
+        """
+        return False, "Failed to recognize section"
+
     def _handle_service(
         self, request: ChangeScene.Request, response: ChangeScene.Response
     ) -> object:
@@ -318,6 +330,7 @@ class AsyncServiceWledNode(Node):
             SceneFunction.SCENE_OFF: self.scene_off,
             SceneFunction.CHANGE_ALL: self.scene_all,
             SceneFunction.SCENE_OFF_ALL: self.scene_off_all,
+            SceneFunction.NO_CHANGE: self.do_nothing,
         }
 
         self.get_logger().info(
@@ -373,12 +386,15 @@ class AsyncServiceWledNode(Node):
         if section_key in self.sections.keys():
             section_data = self.sections[section_key]
 
-        # select all sections
-        else:
+        elif section_key == RosParams.SECTION_ALL_KEY:
             if scene_function == SceneFunction.SCENE_OFF:
                 scene_function = SceneFunction.SCENE_OFF_ALL
             else:
                 scene_function = SceneFunction.CHANGE_ALL
+
+        # behaviour when section key not recognized
+        else:
+            scene_function = SceneFunction.NO_CHANGE
 
         try:
             return RunLightsData(
