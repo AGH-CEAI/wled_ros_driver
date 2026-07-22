@@ -276,7 +276,7 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
-    async def do_nothing(self, _pars):
+    async def do_nothing(self, _pars: RunLightsData) -> tuple[bool, str]:
         """
         Empty method to be executed on wrong parameter entry.
         Args:
