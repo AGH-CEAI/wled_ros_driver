@@ -396,22 +396,14 @@ class AsyncServiceWledNode(Node):
         else:
             scene_function = SceneFunction.NO_CHANGE
 
-        try:
-            return RunLightsData(
-                scene_function=scene_function,
-                effect=self.effects[int(request.effect_id)],
-                color=scene_data.color,
-                brightness=scene_data.brightness,
-                **asdict(section_data),
-            )
-        except ValueError:
-            return RunLightsData(
-                scene_function=scene_function,
-                effect="Solid",
-                color=scene_data.color,
-                brightness=scene_data.brightness,
-                **asdict(section_data),
-            )
+        effect = self.effects.get(int(request.effect_id), "Solid")
+        return RunLightsData(
+            scene_function=scene_function,
+            effect=effect,
+            color=scene_data.color,
+            brightness=scene_data.brightness,
+            **asdict(section_data),
+        )
 
     def _parse_scene_params(self, params_list: list) -> SceneData:
         """
