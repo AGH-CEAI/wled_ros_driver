@@ -59,8 +59,8 @@ source ./install/setup.sh
 ```
 Usage examples:
 ```bash
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1'}"
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', section: 'section_1', optional_params: '255 127 127 63'}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1' effect_id: 0}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', section: 'section_1', effect_id: 1, optional_params: '255 127 127 63'}"
 
 ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_off', section: 'section_1'}"
 ```
