@@ -314,7 +314,7 @@ class AsyncServiceWledNode(Node):
         """
         Asynchronous handler for processing incoming service requests.
 
-        - Logs the requested scene and parameters.int(e
+        - Logs the requested scene and parameters.
         - Determines the correct scene method and parameters using the _prepare_request_params function.
         - Calls the appropriate async scene method with the parameters.
         - Returns the result from the scene method.
