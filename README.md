@@ -17,7 +17,7 @@ It is possible to modify this repository to fit your needs. **PRs are welcome!**
 Get you WLED controller, compatible led stripes and power supply. Connect electrically, power on and configure:
 - IP address
 - Number of leds
-- Segment 0 in UI
+- All segments you want to controll separatly
 
 Make sure the system works using UI provided by WLED Project.
 
@@ -72,24 +72,24 @@ You should see LEDs turn on and off.
 You may pick between the following scenarios:
 | Argument | Description |
 | --- | --- |
-| `scene_1` | All leds, white, 100% brightness |
-| `scene_2` | All leds, white, 75% brightness |
-| `scene_3` | All leds, white, 50% brightness |
-| `scene_4` | All leds, white, 25% brightness |
+| `scene_1` | Led red, 100% brightness |
+| `scene_2` | Led green, 100% brightness |
+| `scene_3` | Led blue, 50% brightness |
+| `scene_4` | Led yellow, 50% brightness |
 | `scene_off` | Led off |
-| `scene_custom`  | custom led range, custom color, custom brightness |
+| `scene_custom`  | custom color, custom brightness |
 
 ### Custom scene parameters
 
 For `scene_custom`, pass the parameters as space-separated values:
 
 ```
-brightness start_led stop_led color_red color_green color_blue
+brightness color_red color_green color_blue
 ```
 
 **Example:**
 ```
-255 10 52 127 127 63
+255 127 127 63
 ```
 
 ---
