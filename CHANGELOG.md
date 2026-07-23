@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
+* [PR-18](https://github.com/AGH-CEAI/wled_ros_driver/pull/18) Added support for displaying effects form WLED controller.
 * [PR-13](https://github.com/AGH-CEAI/wled_ros_driver/pull/13) Added ROS 2 launch file (`wled_service.launch.py`) to automate node startup and parameters injection.
 * [PR-1](https://github.com/AGH-CEAI/wled_ros_driver/pull/1) - Basic scene functionalities in ROS2 node.
 
