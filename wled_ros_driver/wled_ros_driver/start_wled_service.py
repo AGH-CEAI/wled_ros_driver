@@ -170,21 +170,6 @@ class AsyncServiceWledNode(Node):
                 else:
                     return SetParametersResult(successful=False)
 
-            if param.name.startswith("sections."):
-                values = param.name.split(".")
-                self.get_logger().info(f"values : {values}")
-
-                if len(values) == 3:
-                    _, section_name, param_name = values
-                    if section_name not in self.sections:
-                        return SetParametersResult(successful=False)
-                    edited_section = asdict(self.sections[section_name])
-                    edited_section[param_name] = param.value
-                    self.sections[section_name] = SectionData(**edited_section)
-
-                else:
-                    return SetParametersResult(successful=False)
-
         return SetParametersResult(successful=True)
 
     async def wled_info(self):
