@@ -7,12 +7,7 @@ import asyncio
 from wled import WLED
 import rclpy
 from rclpy.node import Node
-from wled_interfaces.srv import ( 
-    ChangeScene, 
-    DefineScene, 
-    GetScenes, 
-    GetSections
-)
+from wled_interfaces.srv import ChangeScene, DefineScene, GetScenes, GetSections
 from wled_ros_driver.types import (
     SceneData,
     SceneFunction,
@@ -313,7 +308,7 @@ class AsyncServiceWledNode(Node):
     ) -> object:
         """
         Synchronous service handler for ROS 2 service requests.
-        Returns the lists of currently configured scenes's parmeters (lists of scene names, brightnesses and separate RGB values).
+        Returns the lists of currently configured scenes's parameters (lists of scene names, brightnesses and separate RGB values).
         """
         self.get_logger().info("GetScenes service called")
 
@@ -343,7 +338,7 @@ class AsyncServiceWledNode(Node):
     ) -> object:
         """
         Synchronous service handler for ROS 2 service requests.
-        Returns the lists of currently configured scetion's parmeters (lists of section names, starts and stops).
+        Returns the lists of currently configured scetion's parameters (lists of section names, starts and stops).
         """
         self.get_logger().info("GetSections service called")
 

@@ -6,6 +6,7 @@ from wled_ros_driver.types.enum_types import SceneFunction
 from dataclasses import dataclass
 from typing import Sequence
 
+
 @dataclass(frozen=True, slots=True)
 class Color:
     R: int
