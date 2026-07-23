@@ -80,13 +80,13 @@ You may pick between the following scenarios:
 | `scene_custom`  | custom color, custom brightness |
 
 ### Availibile sections
-Section data will be fetched automatically from your led controller. 
+Section data will be fetched automatically from your led controller.
 Section's names are set automatically to be `section_<section_number>` where `section_1` is the first segment defined on your WLED controller, followed by `section_2`, `section_3` ...
 
 For controlling all leds simultaneously, use `section_all`
 
 ### Availibile effects
-Effects are loaded directly form wled controler. Tu run selected effect, you need to pass `effect_id`.
+Effects are loaded directly form wled controller. Tu run selected effect, you need to pass `effect_id`.
 
 When no value is present, default is 0 (no effect).
 
