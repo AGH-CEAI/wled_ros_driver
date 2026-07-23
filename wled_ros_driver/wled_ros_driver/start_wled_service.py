@@ -407,7 +407,7 @@ class AsyncServiceWledNode(Node):
 
     def _parse_scene_params(self, params_list: list) -> SceneData:
         """
-        Parse a list of string parameters to create scene data.
+        Safe parse a list of string parameters to create SceneData object.
 
         Parameters (all optional, default values used if missing or invalid):
             params_list[0]: brightness (int, default 255)
@@ -422,25 +422,22 @@ class AsyncServiceWledNode(Node):
         }
 
         """
-        try:
-            return SceneData(
-                brightness=int(params_list[0]) if len(params_list) > 0 else 255,
-                color=Color(
-                    R=int(params_list[1]) if len(params_list) > 1 else 255,
-                    G=int(params_list[2]) if len(params_list) > 2 else 255,
-                    B=int(params_list[3]) if len(params_list) > 3 else 255,
-                ),
-            )
-        except ValueError:
-            self.get_logger().error("failed to parse custom data")
-            return SceneData(
-                brightness=255,
-                color=Color(
-                    R=255,
-                    G=255,
-                    B=255,
-                ),
-            )
+
+        def get_val(idx):
+            try:
+                return int(params_list.get(idx, 255))
+            except ValueError:
+                self.get_logger().error(f"failed to parse custom data (idx: {idx})")
+                return 255
+
+        return SceneData(
+            brightness=get_val(0),
+            color=Color(
+                R=get_val(1),
+                G=get_val(2),
+                B=get_val(3),
+            ),
+        )
 
 
 def main(args=None):
