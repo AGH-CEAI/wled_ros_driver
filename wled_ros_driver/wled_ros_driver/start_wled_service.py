@@ -85,7 +85,7 @@ class AsyncServiceWledNode(Node):
             .get_parameter_value()
             .integer_value
         )
-
+        """
         while rclpy.ok():
             try:
                 loop = asyncio.get_event_loop()
@@ -96,7 +96,7 @@ class AsyncServiceWledNode(Node):
             except Exception as e:
                 self.get_logger().error(f"{e}. Retrying in 2 seconds...")
                 sleep(2.0)
-
+        """
         loaded_scenes = {}
         scenes_params = self.get_parameters_by_prefix(RosParams.SCENES_YAML_NAME)
         for key, param in scenes_params.items():
@@ -300,7 +300,7 @@ class AsyncServiceWledNode(Node):
         """
         return False, "Failed to recognize section"
 
-    def _handle_service(
+    def _srv_cb_change_scene(
         self, request: ChangeScene.Request, response: ChangeScene.Response
     ) -> GetScenes.Response:
         """
