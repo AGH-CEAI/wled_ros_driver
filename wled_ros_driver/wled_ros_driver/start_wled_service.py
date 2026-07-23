@@ -18,7 +18,6 @@ from wled_ros_driver.types import (
 from wled_ros_driver.config.ros_params import RosParams
 from rcl_interfaces.msg import SetParametersResult
 from dataclasses import asdict
-from time import sleep
 
 
 class AsyncServiceWledNode(Node):
