@@ -51,19 +51,19 @@ class AsyncServiceWledNode(Node):
         self.add_on_set_parameters_callback(self._parameter_callback)
 
         self.srv_change_scene = self.create_service(
-            ChangeScene, RosParams.CHANGE_SCENE_SERVICE_NAME, self._handle_change_scene
+            ChangeScene, RosParams.CHANGE_SCENE_SERVICE_NAME, self._srv_cb_change_scene
         )
 
         self.srv_define_scene = self.create_service(
-            DefineScene, RosParams.DEFINE_SCENE_SERVICE_NAME, self._handle_define_scene
+            DefineScene, RosParams.DEFINE_SCENE_SERVICE_NAME, self._srv_cb_define_scene
         )
 
         self.srv_get_scenes = self.create_service(
-            GetScenes, RosParams.GET_SCENES_SERVICE_NAME, self._handle_get_scenes
+            GetScenes, RosParams.GET_SCENES_SERVICE_NAME, self._srv_cb_get_scenes
         )
 
         self.srv_get_sections = self.create_service(
-            GetSections, RosParams.GET_SECTIONS_SERVICE_NAME, self._handle_get_sections
+            GetSections, RosParams.GET_SECTIONS_SERVICE_NAME, self._srv_cb_get_sections
         )
 
         self.get_logger().info("Async service node started")
@@ -281,9 +281,9 @@ class AsyncServiceWledNode(Node):
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
-    def _handle_change_scene(
+    def _srv_cb_change_scene(
         self, request: ChangeScene.Request, response: ChangeScene.Response
-    ) -> object:
+    ) -> GetScenes.Response:
         """
         Synchronous service handler for ROS 2 service requests.
         Runs the asynchronous process_request method using the event loop,
@@ -303,7 +303,7 @@ class AsyncServiceWledNode(Node):
         response.message = result[1]
         return response
 
-    def _handle_get_scenes(
+    def _srv_cb_get_scenes(
         self, request: GetScenes.Request, response: GetScenes.Response
     ) -> GetScenes.Response:
         """
@@ -333,9 +333,9 @@ class AsyncServiceWledNode(Node):
 
         return response
 
-    def _handle_get_sections(
+    def _srv_cb_get_sections(
         self, request: GetSections.Request, response: GetSections.Response
-    ) -> object:
+    ) -> GetScenes.Response:
         """
         Synchronous service handler for ROS 2 service requests.
         Returns the lists of currently configured scetion's parameters (lists of section names, starts and stops).
@@ -357,9 +357,9 @@ class AsyncServiceWledNode(Node):
 
         return response
 
-    def _handle_define_scene(
+    def _srv_cb_define_scene(
         self, request: DefineScene.Request, response: DefineScene.Response
-    ) -> object:
+    ) -> GetScenes.Response:
         """
         Synchronous service handler for ROS 2 service requests.
         Dynamically registers or redefines a scene configuration during runtime.
