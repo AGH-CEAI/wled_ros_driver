@@ -7,7 +7,12 @@ import asyncio
 from wled import WLED
 import rclpy
 from rclpy.node import Node
-from wled_interfaces.srv import ChangeScene, DefineScene, GetScenes, GetSections
+from wled_interfaces.srv import ( 
+    ChangeScene, 
+    DefineScene, 
+    GetScenes, 
+    GetSections
+)
 from wled_ros_driver.types import (
     SceneData,
     SceneFunction,
@@ -51,19 +56,19 @@ class AsyncServiceWledNode(Node):
         self.add_on_set_parameters_callback(self._parameter_callback)
 
         self.srv_change_scene = self.create_service(
-            ChangeScene, "wled_change_scene", self._handle_change_scene
+            ChangeScene, RosParams.CHANGE_SCENE_SERVICE_NAME, self._handle_change_scene
         )
 
         self.srv_define_scene = self.create_service(
-            DefineScene, "wled_define_scene", self._handle_define_scene
+            DefineScene, RosParams.DEFINE_SCENE_SERVICE_NAME, self._handle_define_scene
         )
 
         self.srv_get_scenes = self.create_service(
-            GetScenes, "wled_get_scenes", self._handle_get_scenes
+            GetScenes, RosParams.GET_SCENES_SERVICE_NAME, self._handle_get_scenes
         )
 
         self.srv_get_sections = self.create_service(
-            GetSections, "wled_get_sections", self._handle_get_sections
+            GetSections, RosParams.GET_SECTIONS_SERVICE_NAME, self._handle_get_sections
         )
 
         self.get_logger().info("Async service node started")

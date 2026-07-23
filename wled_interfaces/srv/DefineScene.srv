@@ -1,8 +1,6 @@
 string scene_name
 int32[] color
 int32 brightness
-int32 start
-int32 stop
 ---
 bool success
 string message
