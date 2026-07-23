@@ -305,7 +305,7 @@ class AsyncServiceWledNode(Node):
 
     def _handle_get_scenes(
         self, request: GetScenes.Request, response: GetScenes.Response
-    ) -> object:
+    ) -> GetScenes.Response:
         """
         Synchronous service handler for ROS 2 service requests.
         Returns the lists of currently configured scenes's parameters (lists of scene names, brightnesses and separate RGB values).
