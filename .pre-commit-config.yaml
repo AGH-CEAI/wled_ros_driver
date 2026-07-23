@@ -66,7 +66,7 @@ repos:
         args: [--write-changes]
 
 -   repo: https://github.com/tier4/pre-commit-hooks-ros
-    rev: v0.10.2
+    rev: v0.10.3
     hooks:
     -   id: prettier-xacro
     -   id: prettier-package-xml

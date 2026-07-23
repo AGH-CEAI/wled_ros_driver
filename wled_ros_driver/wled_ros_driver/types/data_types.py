@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from wled_ros_driver.types.enum_types import SceneFunction
 from dataclasses import dataclass
+from typing import Sequence
 
 
 @dataclass(frozen=True, slots=True)
@@ -14,6 +15,12 @@ class Color:
 
     def __str__(self) -> str:
         return f"R:{self.R} G:{self.G} B:{self.B}"
+
+    @classmethod
+    def from_list(cls, values: Sequence[int]) -> "Color":
+        if len(values) != 3:
+            raise ValueError("Color must have exactly 3 components: R, G, B")
+        return cls(*values)
 
 
 @dataclass(frozen=True, slots=True)

@@ -11,12 +11,12 @@ find_package(rosidl_default_generators REQUIRED)
 # uncomment the following section in order to fill in further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-rosidl_generate_interfaces(${PROJECT_NAME} 
-	"srv/ChangeScene.srv"
-	"srv/DefineScene.srv"
-	"srv/GetScenes.srv"
-	"srv/GetSections.srv"
-)
+rosidl_generate_interfaces(
+  ${PROJECT_NAME}
+  "srv/ChangeScene.srv"
+  "srv/DefineScene.srv"
+  "srv/GetScenes.srv"
+  "srv/GetSections.srv")
 
 ament_export_dependencies(rosidl_default_runtime)
 
