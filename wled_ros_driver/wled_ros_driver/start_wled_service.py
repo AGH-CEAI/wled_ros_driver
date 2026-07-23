@@ -15,7 +15,7 @@ from wled_ros_driver.types import (
     RunLightsData,
     Color,
 )
-from wled_ros_driver.config.ros_params import RosParams
+from wled_ros_driver.ros_params import RosParams
 from rcl_interfaces.msg import SetParametersResult
 from dataclasses import asdict
 
@@ -72,10 +72,19 @@ class AsyncServiceWledNode(Node):
             .get_parameter_value()
             .integer_value
         )
-        loop = asyncio.get_event_loop()
-        self.sections = loop.run_until_complete(
-            self._load_segments_from_wled_controller(self.wled_url)
-        )
+        self.mock_hardware = self.get_parameter("mock_hardware").value
+
+        if not self.mock_hardware:
+            loop = asyncio.get_event_loop()
+            self.sections = loop.run_until_complete(
+                self._load_segments_from_wled_controller(self.wled_url)
+            )
+        else:
+            self.get_logger().info("Started in mock hardware mode.")
+            self.sections = {}
+            self.sections["section_1"] = SectionData(0, 0, self.led_count)
+            self.effects = {}
+            self.effects[0] = "Soild"
 
         loaded_scenes = {}
         scenes_params = self.get_parameters_by_prefix(RosParams.SCENES_YAML_NAME)
@@ -106,7 +115,7 @@ class AsyncServiceWledNode(Node):
             loaded_sections = {}
 
             i = 1
-            for segment in device.state.segments:
+            for segment in device.state.wled_ros_driver.wled_ros_driversegments:
                 loaded_sections[f"section_{i}"] = SectionData(
                     segment.segment_id, segment.start, segment.stop
                 )
