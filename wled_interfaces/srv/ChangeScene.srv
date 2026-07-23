@@ -1,5 +1,6 @@
 string scene
 string section
+int64 effect_id
 string optional_params
 ---
 bool success
