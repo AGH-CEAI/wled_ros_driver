@@ -70,25 +70,25 @@ You should see LEDs turn on and off.
 
 ### All available services
 
-| Service | Description | Example |
-| --- | --- | --- |
-|`/wled_change_scene`|Changes the active WLED scene by applying the requested scene, section, effect, and optional parameters. | `ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1', effect_id: 0}"` |
-|`/wled_define_scene`|Creates a new scene or updates an existing scene with the provided name, color and brightness configuration. | `ros2 service call /wled_define_scene wled_interfaces/srv/DefineScene "{scene_name: 'test_scene', color: [100, 0, 100], brightness: 100}"` |
-|`/wled_get_scenes`|Returns the names and configuration parameters of all currently defined scenes. | `ros2 service call /wled_get_scenes wled_interfaces/srv/GetScenes "{}"` |
-|`/wled_get_sections`|Returns the names and LED ranges of all currently configured sections. | `ros2 service call /wled_get_sections wled_interfaces/srv/GetSections "{}"` |
+| Service              | Description                                                                                                  | Example                                                                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/wled_change_scene` | Changes the active WLED scene by applying the requested scene, section, effect, and optional parameters.     | `ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1', effect_id: 0}"`            |
+| `/wled_define_scene` | Creates a new scene or updates an existing scene with the provided name, color and brightness configuration. | `ros2 service call /wled_define_scene wled_interfaces/srv/DefineScene "{scene_name: 'test_scene', color: [100, 0, 100], brightness: 100}"` |
+| `/wled_get_scenes`   | Returns the names and configuration parameters of all currently defined scenes.                              | `ros2 service call /wled_get_scenes wled_interfaces/srv/GetScenes "{}"`                                                                    |
+| `/wled_get_sections` | Returns the names and LED ranges of all currently configured sections.                                       | `ros2 service call /wled_get_sections wled_interfaces/srv/GetSections "{}"`                                                                |
 
 
 ### Available scenes
 
 You may pick between the following scenarios:
-| Argument | Description |
-| --- | --- |
-| `scene_1` | Led red, 100% brightness |
-| `scene_2` | Led green, 100% brightness |
-| `scene_3` | Led blue, 50% brightness |
-| `scene_4` | Led yellow, 50% brightness |
-| `scene_off` | Led off |
-| `scene_custom`  | custom color, custom brightness |
+| Argument       | Description                     |
+| -------------- | ------------------------------- |
+| `scene_1`      | Led red, 100% brightness        |
+| `scene_2`      | Led green, 100% brightness      |
+| `scene_3`      | Led blue, 50% brightness        |
+| `scene_4`      | Led yellow, 50% brightness      |
+| `scene_off`    | Led off                         |
+| `scene_custom` | custom color, custom brightness |
 
 ### Availibile sections
 Section data will be fetched automatically from your led controller.
