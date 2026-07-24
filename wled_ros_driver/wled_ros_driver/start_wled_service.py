@@ -4,21 +4,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-from wled import WLED
+from dataclasses import asdict
+from time import sleep
+
 import rclpy
+from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
-from wled_interfaces.srv import ChangeScene
+from wled import WLED
+from wled.exceptions import WLEDError
+
+from wled_interfaces.srv import ChangeScene, DefineScene, GetScenes, GetSections
+from wled_ros_driver.config.ros_params import RosParams
 from wled_ros_driver.types import (
+    Color,
+    RunLightsData,
     SceneData,
     SceneFunction,
     SectionData,
-    RunLightsData,
-    Color,
 )
-from wled_ros_driver.config.ros_params import RosParams
-from rcl_interfaces.msg import SetParametersResult
-from dataclasses import asdict
-from time import sleep
 
 
 class AsyncServiceWledNode(Node):
@@ -38,7 +41,7 @@ class AsyncServiceWledNode(Node):
         - Sets the node name to 'wled_service_node'.
         - Calls function to get parameters provided in .yaml file
         - Sets callback function meant to update function internal variables when ros parameter is changed
-        - Creates the 'wled_scene_change' service using the ChangeScene interface.
+        - Creates the 'wled_change_scene' service using the ChangeScene interface.
         - Registers the _handle_service method as the service callback.
         - Logs a message indicating the service node has started.
         """
@@ -51,8 +54,20 @@ class AsyncServiceWledNode(Node):
         self._load_variables()
         self.add_on_set_parameters_callback(self._parameter_callback)
 
-        self.srv = self.create_service(
-            ChangeScene, RosParams.SERVICE_NAME, self._handle_service
+        self.srv_change_scene = self.create_service(
+            ChangeScene, RosParams.CHANGE_SCENE_SERVICE_NAME, self._srv_cb_change_scene
+        )
+
+        self.srv_define_scene = self.create_service(
+            DefineScene, RosParams.DEFINE_SCENE_SERVICE_NAME, self._srv_cb_define_scene
+        )
+
+        self.srv_get_scenes = self.create_service(
+            GetScenes, RosParams.GET_SCENES_SERVICE_NAME, self._srv_cb_get_scenes
+        )
+
+        self.srv_get_sections = self.create_service(
+            GetSections, RosParams.GET_SECTIONS_SERVICE_NAME, self._srv_cb_get_sections
         )
 
         self.get_logger().info("Async service node started")
@@ -81,7 +96,7 @@ class AsyncServiceWledNode(Node):
                     self._load_data_from_wled_controller()
                 )
                 break
-            except Exception as e:
+            except WLEDError as e:
                 self.get_logger().error(f"{e}. Retrying in 2 seconds...")
                 sleep(2.0)
 
@@ -98,8 +113,8 @@ class AsyncServiceWledNode(Node):
             else:
                 loaded_scenes[scene_name][scene_parameter] = param.value
         self.scenes = {}
-        for scene_name in loaded_scenes.keys():
-            self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
+        for scene_name, value in loaded_scenes.items():
+            self.scenes[scene_name] = SceneData(**value)
 
     async def _load_data_from_wled_controller(self) -> dict:
         """
@@ -175,7 +190,7 @@ class AsyncServiceWledNode(Node):
             async with WLED(self.wled_url) as led:
                 device = await led.update()
                 self.get_logger().info(f"WLED firmware version: {device.info.version}")
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
 
     async def scene_x(self, pars: RunLightsData) -> tuple[bool, str]:
@@ -207,7 +222,7 @@ class AsyncServiceWledNode(Node):
                 )
                 await led.master(on=True)
             return True, "Scene complete"
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to execute scene_x: {e}")
             return False, "Failed to execute scene"
 
@@ -233,7 +248,7 @@ class AsyncServiceWledNode(Node):
                     )
                 await led.master(on=True)
             return True, "Scene complete"
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to execute scene_all: {e}")
             return False, "Failed to execute scene"
 
@@ -251,7 +266,7 @@ class AsyncServiceWledNode(Node):
             async with WLED(self.wled_url) as led:
                 await led.segment(on=False, segment_id=pars.section_id)
             return True, "Scene 'OFF' complete"
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to execute scene_off: {e}")
             return False, "Failed to execute scene 'OFF'"
 
@@ -272,7 +287,7 @@ class AsyncServiceWledNode(Node):
                 await led.master(on=False)
 
             return True, "Scene 'OFF' complete"
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
@@ -288,9 +303,9 @@ class AsyncServiceWledNode(Node):
         """
         return False, "Failed to recognize section"
 
-    def _handle_service(
+    def _srv_cb_change_scene(
         self, request: ChangeScene.Request, response: ChangeScene.Response
-    ) -> object:
+    ) -> GetScenes.Response:
         """
         Synchronous service handler for ROS 2 service requests.
         Runs the asynchronous process_request method using the event loop,
@@ -308,6 +323,83 @@ class AsyncServiceWledNode(Node):
         result = loop.run_until_complete(self._process_request(request))
         response.success = result[0]
         response.message = result[1]
+        return response
+
+    def _srv_cb_get_scenes(
+        self, request: GetScenes.Request, response: GetScenes.Response
+    ) -> GetScenes.Response:
+        """
+        Synchronous service handler for ROS 2 service requests.
+        Returns the lists of currently configured scenes's parameters (lists of scene names, brightnesses and separate RGB values).
+        """
+        self.get_logger().info("GetScenes service called")
+
+        scene_names = []
+        brightnesses = []
+        colors_r = []
+        colors_g = []
+        colors_b = []
+
+        for name, data in self.scenes.items():
+            scene_names.append(name)
+            brightnesses.append(int(data.brightness))
+            colors_r.append(int(data.color.R))
+            colors_g.append(int(data.color.G))
+            colors_b.append(int(data.color.B))
+
+        response.scene_names = scene_names
+        response.brightnesses = brightnesses
+        response.colors_r = colors_r
+        response.colors_g = colors_g
+        response.colors_b = colors_b
+
+        return response
+
+    def _srv_cb_get_sections(
+        self, request: GetSections.Request, response: GetSections.Response
+    ) -> GetScenes.Response:
+        """
+        Synchronous service handler for ROS 2 service requests.
+        Returns the lists of currently configured scetion's parameters (lists of section names, starts and stops).
+        """
+        self.get_logger().info("GetSections service called")
+
+        section_names = []
+        starts = []
+        stops = []
+
+        for name, data in self.sections.items():
+            section_names.append(name)
+            starts.append(int(data.start_led_id))
+            stops.append(int(data.stop_led_id))
+
+        response.section_names = section_names
+        response.starts = starts
+        response.stops = stops
+
+        return response
+
+    def _srv_cb_define_scene(
+        self, request: DefineScene.Request, response: DefineScene.Response
+    ) -> GetScenes.Response:
+        """
+        Synchronous service handler for ROS 2 service requests.
+        Dynamically registers or redefines a scene configuration during runtime.
+        """
+        name = request.scene_name
+        self.get_logger().info(f"DefineScene called for scene: {name}")
+
+        try:
+            self.scenes[name] = SceneData(
+                color=Color(*list(request.color)), brightness=int(request.brightness)
+            )
+            response.success = True
+            response.message = f"Scene '{name}' successfully defined/updated."
+            self.get_logger().info(response.message)
+        except ValueError as e:
+            response.success = False
+            response.message = f"Failed to define/update scene: {e!s}"
+            self.get_logger().error(response.message)
         return response
 
     async def _process_request(self, request: ChangeScene.Request) -> tuple[bool, str]:
@@ -374,7 +466,7 @@ class AsyncServiceWledNode(Node):
         elif scene_key == RosParams.SCENE_OFF_KEY:
             scene_function = SceneFunction.SCENE_OFF
         # preset scene
-        elif scene_key in self.scenes.keys():
+        elif scene_key in self.scenes:
             scene_function = SceneFunction.CHANGE_SCENE
             scene_data = self.scenes[scene_key]
 
@@ -383,7 +475,7 @@ class AsyncServiceWledNode(Node):
             scene_function = SceneFunction.SCENE_OFF
 
         # select section from preset
-        if section_key in self.sections.keys():
+        if section_key in self.sections:
             section_data = self.sections[section_key]
 
         elif section_key == RosParams.SECTION_ALL_KEY:

@@ -1,0 +1,6 @@
+string scene_name
+int32[] color
+int32 brightness
+---
+bool success
+string message
