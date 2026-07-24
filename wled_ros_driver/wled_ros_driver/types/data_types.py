@@ -2,8 +2,9 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-from wled_ros_driver.types.enum_types import SceneFunction
 from dataclasses import dataclass
+
+from wled_ros_driver.types.enum_types import SceneFunction
 
 
 @dataclass(frozen=True, slots=True)

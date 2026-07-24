@@ -4,8 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
+
 import rclpy
 from rclpy.node import Node
+
 from wled_interfaces.srv import ChangeScene
 
 

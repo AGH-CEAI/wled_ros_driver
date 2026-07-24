@@ -2,8 +2,7 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-from .data_types import RunLightsData, SceneData, SectionData, Color
+from .data_types import Color, RunLightsData, SceneData, SectionData
 from .enum_types import SceneFunction
-
 
 __all__ = [Color, RunLightsData, SceneData, SceneFunction, SectionData]

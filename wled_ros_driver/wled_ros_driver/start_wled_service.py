@@ -4,21 +4,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-from wled import WLED
+from dataclasses import asdict
+from time import sleep
+
 import rclpy
+from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
+from wled import WLED
+
 from wled_interfaces.srv import ChangeScene, DefineScene, GetScenes, GetSections
+from wled_ros_driver.config.ros_params import RosParams
 from wled_ros_driver.types import (
+    Color,
+    RunLightsData,
     SceneData,
     SceneFunction,
     SectionData,
-    RunLightsData,
-    Color,
 )
-from wled_ros_driver.config.ros_params import RosParams
-from rcl_interfaces.msg import SetParametersResult
-from dataclasses import asdict
-from time import sleep
+
 
 class AsyncServiceWledNode(Node):
     """
@@ -109,7 +112,7 @@ class AsyncServiceWledNode(Node):
             else:
                 loaded_scenes[scene_name][scene_parameter] = param.value
         self.scenes = {}
-        for scene_name in loaded_scenes.keys():
+        for scene_name in loaded_scenes:
             self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
 
     async def _load_data_from_wled_controller(self) -> dict:
@@ -394,7 +397,7 @@ class AsyncServiceWledNode(Node):
             self.get_logger().info(response.message)
         except Exception as e:
             response.success = False
-            response.message = f"Failed to define/update scene: {str(e)}"
+            response.message = f"Failed to define/update scene: {e!s}"
             self.get_logger().error(response.message)
         return response
 
