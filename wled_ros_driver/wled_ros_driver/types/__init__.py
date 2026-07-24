@@ -5,4 +5,4 @@
 from .data_types import Color, RunLightsData, SceneData, SectionData
 from .enum_types import SceneFunction
 
-__all__ = [Color, RunLightsData, SceneData, SceneFunction, SectionData]
+__all__ = ["Color", "RunLightsData", "SceneData", "SceneFunction", "SectionData"]

@@ -6,7 +6,7 @@ from strenum import StrEnum
 
 
 class RosParams(StrEnum):
-    CHANGE_SCENE_SERVICE_NAME = "wled_scene_change"
+    CHANGE_SCENE_SERVICE_NAME = "wled_change_scene"
     DEFINE_SCENE_SERVICE_NAME = "wled_define_scene"
     GET_SCENES_SERVICE_NAME = "wled_get_scenes"
     GET_SECTIONS_SERVICE_NAME = "wled_get_sections"
