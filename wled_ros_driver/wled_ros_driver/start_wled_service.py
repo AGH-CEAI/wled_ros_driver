@@ -11,6 +11,7 @@ import rclpy
 from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
 from wled import WLED
+from wled.exceptions import WLEDError
 
 from wled_interfaces.srv import ChangeScene, DefineScene, GetScenes, GetSections
 from wled_ros_driver.config.ros_params import RosParams
@@ -95,7 +96,7 @@ class AsyncServiceWledNode(Node):
                     self._load_data_from_wled_controller()
                 )
                 break
-            except Exception as e:
+            except WLEDError as e:
                 self.get_logger().error(f"{e}. Retrying in 2 seconds...")
                 sleep(2.0)
 
@@ -112,8 +113,8 @@ class AsyncServiceWledNode(Node):
             else:
                 loaded_scenes[scene_name][scene_parameter] = param.value
         self.scenes = {}
-        for scene_name in loaded_scenes:
-            self.scenes[scene_name] = SceneData(**loaded_scenes[scene_name])
+        for scene_name, value in loaded_scenes.items():
+            self.scenes[scene_name] = SceneData(**value)
 
     async def _load_data_from_wled_controller(self) -> dict:
         """
@@ -189,7 +190,7 @@ class AsyncServiceWledNode(Node):
             async with WLED(self.wled_url) as led:
                 device = await led.update()
                 self.get_logger().info(f"WLED firmware version: {device.info.version}")
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
 
     async def scene_x(self, pars: RunLightsData) -> tuple[bool, str]:
@@ -221,7 +222,7 @@ class AsyncServiceWledNode(Node):
                 )
                 await led.master(on=True)
             return True, "Scene complete"
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to execute scene_x: {e}")
             return False, "Failed to execute scene"
 
@@ -247,7 +248,7 @@ class AsyncServiceWledNode(Node):
                     )
                 await led.master(on=True)
             return True, "Scene complete"
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to execute scene_all: {e}")
             return False, "Failed to execute scene"
 
@@ -265,7 +266,7 @@ class AsyncServiceWledNode(Node):
             async with WLED(self.wled_url) as led:
                 await led.segment(on=False, segment_id=pars.section_id)
             return True, "Scene 'OFF' complete"
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to execute scene_off: {e}")
             return False, "Failed to execute scene 'OFF'"
 
@@ -286,7 +287,7 @@ class AsyncServiceWledNode(Node):
                 await led.master(on=False)
 
             return True, "Scene 'OFF' complete"
-        except Exception as e:
+        except WLEDError as e:
             self.get_logger().error(f"Failed to fetch WLED info: {e}")
             return False, "Failed to execute scene 'OFF'"
 
@@ -395,7 +396,7 @@ class AsyncServiceWledNode(Node):
             response.success = True
             response.message = f"Scene '{name}' successfully defined/updated."
             self.get_logger().info(response.message)
-        except Exception as e:
+        except ValueError as e:
             response.success = False
             response.message = f"Failed to define/update scene: {e!s}"
             self.get_logger().error(response.message)
@@ -465,7 +466,7 @@ class AsyncServiceWledNode(Node):
         elif scene_key == RosParams.SCENE_OFF_KEY:
             scene_function = SceneFunction.SCENE_OFF
         # preset scene
-        elif scene_key in self.scenes.keys():
+        elif scene_key in self.scenes:
             scene_function = SceneFunction.CHANGE_SCENE
             scene_data = self.scenes[scene_key]
 
@@ -474,7 +475,7 @@ class AsyncServiceWledNode(Node):
             scene_function = SceneFunction.SCENE_OFF
 
         # select section from preset
-        if section_key in self.sections.keys():
+        if section_key in self.sections:
             section_data = self.sections[section_key]
 
         elif section_key == RosParams.SECTION_ALL_KEY:
