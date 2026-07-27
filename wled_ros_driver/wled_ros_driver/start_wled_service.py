@@ -10,6 +10,8 @@ from time import sleep
 import rclpy
 from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile
+from std_msgs.msg import String
 from wled import WLED
 from wled.exceptions import WLEDError
 
@@ -70,8 +72,30 @@ class AsyncServiceWledNode(Node):
             GetSections, RosParams.GET_SECTIONS_SERVICE_NAME, self._srv_cb_get_sections
         )
 
+        custom_qos = QoSProfile(durability=DurabilityPolicy.TRANSIENT_LOCAL)
+
+        self.effects_topic = self.create_publisher(
+            String, RosParams.EFFECTS_TOPIC_NAME, custom_qos
+        )
+
+        self.publish_effects()
+
         self.get_logger().info("Async service node started")
         self.get_logger().info(f"IP address {self.wled_url}")
+
+    def publish_effects(self):
+        """
+        Publishes the list of available effects to the 'wled_effects' topic.
+
+        - Creates a String message containing the effect names.
+        - Publishes the message to the effects topic.
+        - Logs a message indicating that effects have been published.
+        """
+        msg = String()
+        effects_dict = getattr(self, "effects", {})
+        msg.data = ",\n".join(effects_dict.values())
+        self.effects_topic.publish(msg)
+        self.get_logger().info("Published all available effects")
 
     def _load_variables(self):
         """
