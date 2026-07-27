@@ -72,7 +72,7 @@ class AsyncServiceWledNode(Node):
             GetSections, RosParams.GET_SECTIONS_SERVICE_NAME, self._srv_cb_get_sections
         )
 
-        custom_qos = QoSProfile(durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        custom_qos = QoSProfile(durability=DurabilityPolicy.TRANSIENT_LOCAL, depth=1)
 
         self.effects_topic = self.create_publisher(
             String, RosParams.EFFECTS_TOPIC_NAME, custom_qos
@@ -93,7 +93,7 @@ class AsyncServiceWledNode(Node):
         """
         msg = String()
         effects_dict = getattr(self, "effects", {})
-        msg.data = ",\n".join(effects_dict.values())
+        msg.data = ", ".join(effects_dict.values())
         self.effects_topic.publish(msg)
         self.get_logger().info("Published all available effects")
 
