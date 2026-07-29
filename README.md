@@ -81,6 +81,11 @@ You should see LEDs turn on and off.
 | `/wled_get_scenes`   | Returns the names and configuration parameters of all currently defined scenes.                              | `ros2 service call /wled_get_scenes wled_interfaces/srv/GetScenes "{}"`                                                                    |
 | `/wled_get_sections` | Returns the names and LED ranges of all currently configured sections.                                       | `ros2 service call /wled_get_sections wled_interfaces/srv/GetSections "{}"`                                                                |
 
+### All available topic
+
+| Topic                 | Description                                                                                  | Example                         |
+| --------------------- | -------------------------------------------------------------------------------------------- | ------------------------------- |
+| `/wled_effects`       | String topic publishing the list of available WLED light effects fetched from the controller.| `ros2 topic echo /wled_effects` |
 
 ### Available scenes
 

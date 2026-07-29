@@ -11,6 +11,8 @@ class RosParams(StrEnum):
     GET_SCENES_SERVICE_NAME = "wled_get_scenes"
     GET_SECTIONS_SERVICE_NAME = "wled_get_sections"
 
+    EFFECTS_TOPIC_NAME = "wled_effects"
+
     WLED_CONTROLLER_URL = "wled_url"
     WLED_SEGMENTS_COUNT = "wled_count"
 
