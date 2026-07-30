@@ -2,7 +2,7 @@
   <a href = "assets/wled_ros_driver_logo.svg">
     <img src="assets/wled_ros_driver_logo.webp" alt="Logo" width="200">
   </a>
-</p>S
+</p>
 
 # wled_ros_driver
 
