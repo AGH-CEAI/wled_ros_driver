@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="assets/wled_ros_driver_logo.png" alt="Logo" width="200">
-</p>
+  <a href = "assets/wled_ros_driver_logo.svg">
+    <img src="assets/wled_ros_driver_logo.webp" alt="Logo" width="200">
+  </a>
+</p>S
 
 # wled_ros_driver
 
