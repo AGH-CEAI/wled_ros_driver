@@ -1,3 +1,9 @@
+<p align="center">
+  <a href = "assets/wled_ros_driver_logo.svg">
+    <img src="assets/wled_ros_driver_logo.webp" alt="Logo" width="200">
+  </a>
+</p>
+
 # wled_ros_driver
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
