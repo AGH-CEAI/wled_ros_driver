@@ -81,10 +81,12 @@ class AsyncServiceWledNode(Node):
             )
         else:
             self.get_logger().info("Started in mock hardware mode.")
+            self.get_logger().info("Available sections: section_1")
+            self.get_logger().info("Available effects: 0 - Solid")
             self.sections = {}
             self.sections["section_1"] = SectionData(0, 0, self.led_count)
             self.effects = {}
-            self.effects[0] = "Soild"
+            self.effects[0] = "Solid"
 
         loaded_scenes = {}
         scenes_params = self.get_parameters_by_prefix(RosParams.SCENES_YAML_NAME)
@@ -190,8 +192,6 @@ class AsyncServiceWledNode(Node):
                     on=True,
                     brightness=pars.brightness,
                     segment_id=pars.section_id,
-                    start=pars.start_led_id,
-                    stop=pars.stop_led_id,
                     color_primary=pars.color,
                     transition=1,
                 )
@@ -215,8 +215,6 @@ class AsyncServiceWledNode(Node):
                         on=True,
                         brightness=pars.brightness,
                         segment_id=section.section_id,
-                        start=section.start_led_id,
-                        stop=section.stop_led_id,
                         color_primary=pars.color,
                         transition=1,
                     )
@@ -266,7 +264,7 @@ class AsyncServiceWledNode(Node):
     def _handle_service(
         self, request: ChangeScene.Request, response: ChangeScene.Response
     ) -> object:
-        """
+        """self.effects
         Synchronous service handler for ROS 2 service requests.
         Runs the asynchronous process_request method using the event loop,
         sets the response fields, and returns the response.
@@ -408,7 +406,7 @@ def main(args=None):
     """
     rclpy.init(args=args)
     node = AsyncServiceWledNode()
-    try:
+    try:self.effects
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
