@@ -118,9 +118,7 @@ class AsyncServiceWledNode(Node):
             while rclpy.ok():
                 try:
                     loop = asyncio.get_event_loop()
-                    self.sections = loop.run_until_complete(
-                        self._load_data_from_wled_controller()
-                    )
+                    loop.run_until_complete(self._load_data_from_wled_controller())
                     break
                 except WLEDError as e:
                     self.get_logger().error(f"{e}. Retrying in 2 seconds...")
@@ -160,11 +158,11 @@ class AsyncServiceWledNode(Node):
 
         async with WLED(self.wled_url) as led:
             device = await led.update()
-            loaded_sections = {}
+            self.sections = {}
 
             i = 1
-            for segment in device.state.wled_ros_driver.wled_ros_driversegments:
-                loaded_sections[f"section_{i}"] = SectionData(
+            for segment in device.state.segments:
+                self.sections[f"section_{i}"] = SectionData(
                     segment.segment_id, segment.start, segment.stop
                 )
                 i += 1
@@ -172,7 +170,6 @@ class AsyncServiceWledNode(Node):
 
             for effect in device.effects:
                 self.effects[int(effect.effect_id)] = effect.name
-            return loaded_sections
 
     def _parameter_callback(self, params: list) -> SetParametersResult:
         """
