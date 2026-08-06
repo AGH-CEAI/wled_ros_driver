@@ -1,0 +1,6 @@
+---
+string[] scene_names
+int32[] brightnesses
+int32[] colors_r
+int32[] colors_g
+int32[] colors_b

@@ -1,3 +1,9 @@
+<p align="center">
+  <a href = "docs/wled_ros_driver_logo.svg">
+    <img src="docs/wled_ros_driver_logo.webp" alt="Logo" width="200">
+  </a>
+</p>
+
 # wled_ros_driver
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -17,7 +23,7 @@ It is possible to modify this repository to fit your needs. **PRs are welcome!**
 Get you WLED controller, compatible led stripes and power supply. Connect electrically, power on and configure:
 - IP address
 - Number of leds
-- Segment 0 in UI
+- All segments you want to control separately
 
 Make sure the system works using UI provided by WLED Project.
 
@@ -44,44 +50,79 @@ ros2 launch wled_ros_driver wled_service.launch.py
 3. Call the commands (another terminal)
 ```bash
 source ./install/setup.sh
-python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_1 section_1
-python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_custom section_1 "255 255 127 127" (brightness red green blue)
+```
+
+Usage examples:
+```bash
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py <scene> <section> <effect_id> <params (optional, only fi scene_custom selected)>
+
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_1 section_1 0
+python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_custom section_1 1 "255 255 127 127" (brightness red green blue)
 python3 src/wled_ros_driver/wled_ros_driver/wled_ros_driver/wled_client.py scene_off section_1
 ```
 or by using ros2 service:
 ```bash
 source ./install/setup.sh
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1'}"
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', section: 'section_1', optional_params: '255 127 127 63'}"
+```
 
+Usage examples:
+```bash
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1' effect_id: 0}"
+ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', section: 'section_1', effect_id: 1, optional_params: '255 127 127 63'}"
 ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_off', section: 'section_1'}"
 ```
 
 You should see LEDs turn on and off.
 
+### All available services
+
+| Service              | Description                                                                                                  | Example                                                                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/wled_change_scene` | Changes the active WLED scene by applying the requested scene, section, effect, and optional parameters.     | `ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1', effect_id: 0}"`            |
+| `/wled_define_scene` | Creates a new scene or updates an existing scene with the provided name, color and brightness configuration. | `ros2 service call /wled_define_scene wled_interfaces/srv/DefineScene "{scene_name: 'test_scene', color: [100, 0, 100], brightness: 100}"` |
+| `/wled_get_scenes`   | Returns the names and configuration parameters of all currently defined scenes.                              | `ros2 service call /wled_get_scenes wled_interfaces/srv/GetScenes "{}"`                                                                    |
+| `/wled_get_sections` | Returns the names and LED ranges of all currently configured sections.                                       | `ros2 service call /wled_get_sections wled_interfaces/srv/GetSections "{}"`                                                                |
+
+### All available topic
+
+| Topic                 | Description                                                                                  | Example                         |
+| --------------------- | -------------------------------------------------------------------------------------------- | ------------------------------- |
+| `/wled_effects`       | String topic publishing the list of available WLED light effects fetched from the controller.| `ros2 topic echo /wled_effects` |
+
 ### Available scenes
 
 You may pick between the following scenarios:
-| Argument | Description |
-| --- | --- |
-| `scene_1` | All leds, white, 100% brightness |
-| `scene_2` | All leds, white, 75% brightness |
-| `scene_3` | All leds, white, 50% brightness |
-| `scene_4` | All leds, white, 25% brightness |
-| `scene_off` | Led off |
-| `scene_custom`  | custom led range, custom color, custom brightness |
+| Argument       | Description                     |
+| -------------- | ------------------------------- |
+| `scene_1`      | Led red, 100% brightness        |
+| `scene_2`      | Led green, 100% brightness      |
+| `scene_3`      | Led blue, 50% brightness        |
+| `scene_4`      | Led yellow, 50% brightness      |
+| `scene_off`    | Led off                         |
+| `scene_custom` | custom color, custom brightness |
+
+### Availibile sections
+Section data will be fetched automatically from your led controller.
+Section's names are set automatically to be `section_<section_number>` where `section_1` is the first segment defined on your WLED controller, followed by `section_2`, `section_3` ...
+
+For controlling all leds simultaneously, use `section_all`
+
+### Availibile effects
+Effects are loaded directly form wled controller. Tu run selected effect, you need to pass `effect_id`.
+
+When no value is present, default is 0 (no effect).
 
 ### Custom scene parameters
 
 For `scene_custom`, pass the parameters as space-separated values:
 
 ```
-brightness start_led stop_led color_red color_green color_blue
+brightness color_red color_green color_blue
 ```
 
 **Example:**
 ```
-255 10 52 127 127 63
+255 127 127 63
 ```
 
 ---

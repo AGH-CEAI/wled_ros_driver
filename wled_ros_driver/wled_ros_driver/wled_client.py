@@ -4,8 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
+
 import rclpy
 from rclpy.node import Node
+
 from wled_interfaces.srv import ChangeScene
 
 
@@ -13,7 +15,7 @@ class AsyncServiceWledClient(Node):
     """
     ROS 2 client node for interacting with the WLED service.
 
-    - Connects to the 'wled_scene_change' service.
+    - Connects to the 'wled_change_scene' service.
     - Sends requests to change LED scenes and parameters.
     - Handles asynchronous responses from the service.
     - Logs service availability, requests, and responses for debugging.
@@ -24,24 +26,28 @@ class AsyncServiceWledClient(Node):
         Initializes the AsyncServiceWledClient node.
 
         - Sets the node name to 'wled_service_client'.
-        - Creates a client for the 'wled_scene_change' service using the ChangeScene interface.
+        - Creates a client for the 'wled_change_scene' service using the ChangeScene interface.
         - Waits for the service to become available, logging status messages.
         - Initializes a ChangeScene request object for sending service requests.
         """
         super().__init__("wled_service_client")
-        self.client = self.create_client(ChangeScene, "wled_scene_change")
+        self.client = self.create_client(ChangeScene, "wled_change_scene")
         while not self.client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info("Service not available, waiting...")
         self.req = ChangeScene.Request()
 
     def send_request(
-        self, scene_name: str, section_name: str, optional_params: str = ""
+        self,
+        scene_name: str,
+        section_name: str,
+        effect_id: int,
+        optional_params: str = "",
     ) -> None:
         """
         Sends an asynchronous service request to change the WLED scene.
 
         - Sets the scene name and optional parameters in the request object.
-        - Calls the 'wled_scene_change' service asynchronously.
+        - Calls the 'wled_change_scene' service asynchronously.
         - Registers a callback to handle the service response.
 
         Args:
@@ -50,25 +56,35 @@ class AsyncServiceWledClient(Node):
         """
         self.req.scene = scene_name
         self.req.section = section_name
+        self.req.effect_id = effect_id
+
         self.req.optional_params = optional_params
         self.future = self.client.call_async(self.req)
         self.future.add_done_callback(self.response_callback)
 
     def response_callback(self, future):
         """
-        Callback function to handle the response from the asynchronous service request.
+        Callback invoked when the asynchronous service request completes.
 
-        - Logs the service response message if successful.
-        - Logs an error message if the service call fails.
+        * Checks whether the request was cancelled or completed with an exception.
+        * Logs an error if the service call did not complete successfully.
+        * Logs the response message if the service call succeeds.
 
         Args:
-            future: The Future object representing the asynchronous service call.
+        future: The Future object representing the asynchronous service request.
         """
-        try:
-            response = future.result()
-            self.get_logger().info(f"Response from service: {response.message}")
-        except Exception as e:
-            self.get_logger().error(f"Service call failed: {e}")
+
+        if future.cancelled():
+            self.get_logger().error("Service call was cancelled")
+            return
+
+        exc = future.exception()
+        if exc is not None:
+            self.get_logger().error(f"Service call failed: {exc!r}")
+            return
+
+        response = future.result()
+        self.get_logger().info(f"Response from service: {response.message}")
 
 
 def main(args=None):
@@ -87,14 +103,15 @@ def main(args=None):
 
     # Provide the scene name as a command line argument or default to "one"
     scene = sys.argv[1] if len(sys.argv) > 1 else "scene_1"
-    section = sys.argv[2] if len(sys.argv) > 1 else "section_1"
+    section = sys.argv[2] if len(sys.argv) > 2 else "section_1"
+    effect = int(sys.argv[3]) if len(sys.argv) > 3 else 0
 
-    optional_params = sys.argv[3] if len(sys.argv) > 2 else "None"
+    optional_params = sys.argv[4] if len(sys.argv) > 4 else "None"
 
     client.get_logger().info(
-        f"Sending request for scene: {scene} | {section}| {optional_params}"
+        f"Sending request for scene: {scene} | {section} | {effect} | {optional_params}"
     )
-    client.send_request(scene, section, optional_params)
+    client.send_request(scene, section, effect, optional_params)
 
     # Spin until response received
     rclpy.spin(client)

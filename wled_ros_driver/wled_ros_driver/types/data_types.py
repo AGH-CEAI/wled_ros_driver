@@ -2,8 +2,9 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-from wled_ros_driver.types.enum_types import SceneFunction
 from dataclasses import dataclass
+
+from wled_ros_driver.types.enum_types import SceneFunction
 
 
 @dataclass(frozen=True, slots=True)
@@ -15,12 +16,16 @@ class Color:
     def __str__(self) -> str:
         return f"R:{self.R} G:{self.G} B:{self.B}"
 
+    @property
+    def as_list(self) -> list[int]:
+        return [self.R, self.G, self.B]
+
 
 @dataclass(frozen=True, slots=True)
 class SectionData:
-    section_id: int
-    start_led_id: int
-    stop_led_id: int
+    section_id: int = 0
+    start_led_id: int = 0
+    stop_led_id: int = 0
 
     def __len__(self) -> int:
         return len(self.__slots__)
@@ -29,23 +34,24 @@ class SectionData:
 @dataclass(frozen=True, slots=True)
 class RunLightsData:
     scene_function: SceneFunction
-    color: Color = Color(0, 0, 0)
-    brightness: int = 0
-    section_id: int = 0
-    start_led_id: int = 0
-    stop_led_id: int = 0
+    color: Color
+    brightness: int
+    section_id: int
+    start_led_id: int
+    stop_led_id: int
+    effect: str = "Solid"
 
     def __len__(self) -> int:
         return len(self.__slots__)
 
     def __str__(self) -> str:
-        return f"color:{self.color}, brightness:{self.brightness}, start:{self.start_led_id}, stop:{self.stop_led_id}"
+        return f"color:{self.color}, brightness:{self.brightness}, start:{self.start_led_id}, stop:{self.stop_led_id}, effect:{self.effect}"
 
 
 @dataclass(frozen=True, slots=True)
 class SceneData:
-    brightness: int
-    color: Color
+    brightness: int = 255
+    color: Color = Color(0, 0, 0)
 
     def __len__(self) -> int:
         return len(self.__slots__)
