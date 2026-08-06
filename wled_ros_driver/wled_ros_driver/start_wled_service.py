@@ -112,7 +112,10 @@ class AsyncServiceWledNode(Node):
             .get_parameter_value()
             .integer_value
         )
-        self.mock_hardware = self.get_parameter("mock_hardware").value
+        if self.has_parameter("mock_hardware"):
+            self.mock_hardware = self.get_parameter("mock_hardware").value
+        else:
+            self.mock_hardware = False
 
         if not self.mock_hardware:
             while rclpy.ok():
