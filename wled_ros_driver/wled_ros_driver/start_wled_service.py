@@ -16,7 +16,7 @@ from wled import WLED
 from wled.exceptions import WLEDError
 
 from wled_interfaces.srv import ChangeScene, DefineScene, GetScenes, GetSections
-from wled_ros_driver.config.ros_params import RosParams
+from wled_ros_driver.ros_params import RosParams
 from wled_ros_driver.types import (
     Color,
     RunLightsData,
@@ -112,17 +112,28 @@ class AsyncServiceWledNode(Node):
             .get_parameter_value()
             .integer_value
         )
+        if self.has_parameter("mock_hardware"):
+            self.mock_hardware = self.get_parameter("mock_hardware").value
+        else:
+            self.mock_hardware = False
 
-        while rclpy.ok():
-            try:
-                loop = asyncio.get_event_loop()
-                self.sections = loop.run_until_complete(
-                    self._load_data_from_wled_controller()
-                )
-                break
-            except WLEDError as e:
-                self.get_logger().error(f"{e}. Retrying in 2 seconds...")
-                sleep(2.0)
+        if not self.mock_hardware:
+            while rclpy.ok():
+                try:
+                    loop = asyncio.get_event_loop()
+                    loop.run_until_complete(self._load_data_from_wled_controller())
+                    break
+                except WLEDError as e:
+                    self.get_logger().error(f"{e}. Retrying in 2 seconds...")
+                    sleep(2.0)
+        else:
+            self.get_logger().info("Started in mock hardware mode.")
+            self.get_logger().info("Available sections: section_1")
+            self.get_logger().info("Available effects: 0 - Solid")
+            self.sections = {}
+            self.sections["section_1"] = SectionData(0, 0, self.led_count)
+            self.effects = {}
+            self.effects[0] = "Solid"
 
         loaded_scenes = {}
         scenes_params = self.get_parameters_by_prefix(RosParams.SCENES_YAML_NAME)
@@ -150,11 +161,11 @@ class AsyncServiceWledNode(Node):
 
         async with WLED(self.wled_url) as led:
             device = await led.update()
-            loaded_sections = {}
+            self.sections = {}
 
             i = 1
             for segment in device.state.segments:
-                loaded_sections[f"section_{i}"] = SectionData(
+                self.sections[f"section_{i}"] = SectionData(
                     segment.segment_id, segment.start, segment.stop
                 )
                 i += 1
@@ -162,7 +173,6 @@ class AsyncServiceWledNode(Node):
 
             for effect in device.effects:
                 self.effects[int(effect.effect_id)] = effect.name
-            return loaded_sections
 
     def _parameter_callback(self, params: list) -> SetParametersResult:
         """
@@ -238,8 +248,6 @@ class AsyncServiceWledNode(Node):
                     on=True,
                     brightness=pars.brightness,
                     segment_id=pars.section_id,
-                    start=pars.start_led_id,
-                    stop=pars.stop_led_id,
                     color_primary=pars.color.as_list,
                     transition=1,
                     effect=pars.effect,
@@ -264,8 +272,6 @@ class AsyncServiceWledNode(Node):
                         on=True,
                         brightness=pars.brightness,
                         segment_id=section.section_id,
-                        start=section.start_led_id,
-                        stop=section.stop_led_id,
                         color_primary=pars.color.as_list,
                         transition=1,
                         effect=pars.effect,
@@ -329,7 +335,7 @@ class AsyncServiceWledNode(Node):
 
     def _srv_cb_change_scene(
         self, request: ChangeScene.Request, response: ChangeScene.Response
-    ) -> GetScenes.Response:
+    ) -> ChangeScene.Response:
         """
         Synchronous service handler for ROS 2 service requests.
         Runs the asynchronous process_request method using the event loop,
@@ -381,7 +387,7 @@ class AsyncServiceWledNode(Node):
 
     def _srv_cb_get_sections(
         self, request: GetSections.Request, response: GetSections.Response
-    ) -> GetScenes.Response:
+    ) -> GetSections.Response:
         """
         Synchronous service handler for ROS 2 service requests.
         Returns the lists of currently configured scetion's parameters (lists of section names, starts and stops).
@@ -405,7 +411,7 @@ class AsyncServiceWledNode(Node):
 
     def _srv_cb_define_scene(
         self, request: DefineScene.Request, response: DefineScene.Response
-    ) -> GetScenes.Response:
+    ) -> DefineScene.Response:
         """
         Synchronous service handler for ROS 2 service requests.
         Dynamically registers or redefines a scene configuration during runtime.

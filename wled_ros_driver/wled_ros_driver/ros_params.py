@@ -14,7 +14,7 @@ class RosParams(StrEnum):
     EFFECTS_TOPIC_NAME = "wled_effects"
 
     WLED_CONTROLLER_URL = "wled_url"
-    WLED_SEGMENTS_COUNT = "wled_count"
+    WLED_SEGMENTS_COUNT = "led_count"
 
     SCENE_OFF_KEY = "scene_off"
     SCENE_CUSTOM_KEY = "scene_custom"

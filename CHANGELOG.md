@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+* [PR-24](https://github.com/AGH-CEAI/wled_ros_driver/pull/24) - Added support for mocking hardware with flag `mock_hardware` flag; cleaned up code.
 * [PR-20](https://github.com/AGH-CEAI/wled_ros_driver/pull/20) - New ROS 2 topic `/wled_effects` publishing available light effects fetched dynamically from the WLED controller.
 * [PR-18](https://github.com/AGH-CEAI/wled_ros_driver/pull/18) - Added support for displaying effects form WLED controller.
 * [PR-16](https://github.com/AGH-CEAI/wled_ros_driver/pull/16) - New ROS 2 services in `wled_interfaces/srv`: `DefineScene.srv`, `GetScenes.srv` and `GetSections.srv` for interaction with the WLED server.

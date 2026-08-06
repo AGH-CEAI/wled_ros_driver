@@ -67,9 +67,9 @@ source ./install/setup.sh
 
 Usage examples:
 ```bash
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1' effect_id: 0}"
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', section: 'section_1', effect_id: 1, optional_params: '255 127 127 63'}"
-ros2 service call /wled_scene_change wled_interfaces/srv/ChangeScene "{scene: 'scene_off', section: 'section_1'}"
+ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1', effect_id: 0}"
+ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 'scene_custom', section: 'section_1', effect_id: 1, optional_params: '255 127 127 63'}"
+ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 'scene_off', section: 'section_1'}"
 ```
 
 You should see LEDs turn on and off.
@@ -81,7 +81,7 @@ You should see LEDs turn on and off.
 | `/wled_change_scene` | Changes the active WLED scene by applying the requested scene, section, effect, and optional parameters.     | `ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1', effect_id: 0}"`            |
 | `/wled_define_scene` | Creates a new scene or updates an existing scene with the provided name, color and brightness configuration. | `ros2 service call /wled_define_scene wled_interfaces/srv/DefineScene "{scene_name: 'test_scene', color: [100, 0, 100], brightness: 100}"` |
 | `/wled_get_scenes`   | Returns the names and configuration parameters of all currently defined scenes.                              | `ros2 service call /wled_get_scenes wled_interfaces/srv/GetScenes "{}"`                                                                    |
-| `/wled_get_sections` | Returns the names and LED ranges of all currently configured sections.                                       | `ros2 service call /wled_get_sections wled_interfaces/srv/GetSections "{}"`                                                                |
+  | `/wled_get_sections` | Returns the names and LED ranges of all currently configured sections.                                       | `ros2 service call /wled_get_sections wled_interfaces/srv/GetSections "{}"`                                                                |
 
 ### All available topic
 
