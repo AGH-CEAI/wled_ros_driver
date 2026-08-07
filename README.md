@@ -85,9 +85,9 @@ You should see LEDs turn on and off.
 
 ### All available topic
 
-| Topic                 | Description                                                                                  | Example                         |
-| --------------------- | -------------------------------------------------------------------------------------------- | ------------------------------- |
-| `/wled_effects`       | String topic publishing the list of available WLED light effects fetched from the controller.| `ros2 topic echo /wled_effects` |
+| Topic                 | Description                                                                                                 | Example                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `/wled_effects`       | Topic publisher that publishes all availible led effects and their ids in format id1:effect1;id2:effect2 ...| `ros2 topic echo /wled_effects` |
 
 ### Available scenes
 
