@@ -81,7 +81,7 @@ ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 's
 You should see LEDs turn on and off.
 
 > [!TIP]
-> Example of integration with larger system availibile here: https://github.com/AGH-CEAI/aegis_ros.
+> Example of integration with larger system is available here: https://github.com/AGH-CEAI/aegis_ros.
 ### All available services
 
 | Service              | Description                                                                                                  | Example                                                                                                                                    |

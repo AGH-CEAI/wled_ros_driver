@@ -470,7 +470,23 @@ class AsyncServiceWledNode(Node):
         if not self.mock_hardware:
             return await METHODS_MAP[params.scene_function](params)
         else:
+        if self.mock_hardware:
             return (True, "Mock hardware mode: scene change simulated.")
+        METHODS_MAP = {
+            SceneFunction.CHANGE_SCENE: self.scene_x,
+            SceneFunction.SCENE_OFF: self.scene_off,
+            SceneFunction.CHANGE_ALL: self.scene_all,
+            SceneFunction.SCENE_OFF_ALL: self.scene_off_all,
+            SceneFunction.NO_CHANGE: self.do_nothing,
+        }
+        self.get_logger().info(
+            f"scene: {request.scene} | section: {request.section} | effect_id: {request.effect_id} | optional_params: {request.optional_params}"
+        )
+        params = self._prepare_request_params(request)
+        self.get_logger().info(
+            f"Prepared parameters: {params} | scene_function: {params.scene_function}"
+        )
+        return await METHODS_MAP[params.scene_function](params)
 
     def _prepare_request_params(self, request: ChangeScene.Request) -> RunLightsData:
         """
