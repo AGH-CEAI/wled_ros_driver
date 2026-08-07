@@ -27,12 +27,15 @@ Get you WLED controller, compatible led stripes and power supply. Connect electr
 
 Make sure the system works using UI provided by WLED Project.
 
+> [!IMPORTANT]
+> Save the template and ensure "apply at boot" option is turned on.
+
 ### Setup
 
 1. Download repo and build package
 ```bash
 source /opt/ros/humble/setup.sh
-git clone git@github.com:AGH-CEAI/wled_ros_driver.git
+git clone https://github.com/AGH-CEAI/wled_ros_driver.git
 colcon build --symlink-install
 source ./install/setup.bash
 ```
@@ -43,13 +46,15 @@ source ./install/setup.bash
 ```
 wled_ros_driver/config/scenes.yaml
 ```
-2. Start the server using the launch file:
+2. Setup and source your ros system.
+```
+source /opt/ros/humble/setup.sh
+source install/setup.sh
+```
+
+4. Start the server using the launch file:
 ```bash
 ros2 launch wled_ros_driver wled_service.launch.py
-```
-3. Call the commands (another terminal)
-```bash
-source ./install/setup.sh
 ```
 
 Usage examples:
@@ -64,6 +69,7 @@ or by using ros2 service:
 ```bash
 source ./install/setup.sh
 ```
+
 
 Usage examples:
 ```bash
