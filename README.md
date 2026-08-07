@@ -93,7 +93,7 @@ You should see LEDs turn on and off.
 
 | Topic                 | Description                                                                                                 | Example                         |
 | --------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| `/wled_effects`       | Topic publisher that publishes all availible led effects and their ids in format id1:effect1;id2:effect2 ...| `ros2 topic echo /wled_effects` |
+| `/wled_effects`       | Topic publisher that publishes all available led effects and their ids in format id1:effect1;id2:effect2 ...| `ros2 topic echo /wled_effects` |
 
 ### Available scenes
 
