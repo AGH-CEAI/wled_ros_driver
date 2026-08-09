@@ -27,12 +27,15 @@ Get you WLED controller, compatible led stripes and power supply. Connect electr
 
 Make sure the system works using UI provided by WLED Project.
 
+> [!IMPORTANT]
+> Save the template and ensure "apply at boot" option is turned on.
+
 ### Setup
 
 1. Download repo and build package
 ```bash
 source /opt/ros/humble/setup.sh
-git clone git@github.com:AGH-CEAI/wled_ros_driver.git
+git clone https://github.com/AGH-CEAI/wled_ros_driver.git
 colcon build --symlink-install
 source ./install/setup.bash
 ```
@@ -43,13 +46,15 @@ source ./install/setup.bash
 ```
 wled_ros_driver/config/scenes.yaml
 ```
-2. Start the server using the launch file:
+2. Setup and source your ros system.
+```
+source /opt/ros/humble/setup.sh
+source install/setup.sh
+```
+
+4. Start the server using the launch file:
 ```bash
 ros2 launch wled_ros_driver wled_service.launch.py
-```
-3. Call the commands (another terminal)
-```bash
-source ./install/setup.sh
 ```
 
 Usage examples:
@@ -65,6 +70,7 @@ or by using ros2 service:
 source ./install/setup.sh
 ```
 
+
 Usage examples:
 ```bash
 ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 'scene_1', section: 'section_1', effect_id: 0}"
@@ -74,6 +80,8 @@ ros2 service call /wled_change_scene wled_interfaces/srv/ChangeScene "{scene: 's
 
 You should see LEDs turn on and off.
 
+> [!TIP]
+> Example of integration with larger system is available here: https://github.com/AGH-CEAI/aegis_ros.
 ### All available services
 
 | Service              | Description                                                                                                  | Example                                                                                                                                    |
@@ -85,9 +93,9 @@ You should see LEDs turn on and off.
 
 ### All available topic
 
-| Topic                 | Description                                                                                  | Example                         |
-| --------------------- | -------------------------------------------------------------------------------------------- | ------------------------------- |
-| `/wled_effects`       | String topic publishing the list of available WLED light effects fetched from the controller.| `ros2 topic echo /wled_effects` |
+| Topic                 | Description                                                                                                 | Example                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `/wled_effects`       | Topic publisher that publishes all available led effects and their ids in format id1:effect1;id2:effect2 ...| `ros2 topic echo /wled_effects` |
 
 ### Available scenes
 

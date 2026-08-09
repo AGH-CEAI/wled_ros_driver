@@ -93,7 +93,10 @@ class AsyncServiceWledNode(Node):
         """
         msg = String()
         effects_dict = getattr(self, "effects", {})
-        msg.data = ", ".join(effects_dict.values())
+        msg.data = ";".join(
+            f"{effect_id}:{effect_name}"
+            for effect_id, effect_name in effects_dict.items()
+        )
         self.effects_topic.publish(msg)
         self.get_logger().info("Published all available effects")
 
@@ -127,9 +130,9 @@ class AsyncServiceWledNode(Node):
                     self.get_logger().error(f"{e}. Retrying in 2 seconds...")
                     sleep(2.0)
         else:
-            self.get_logger().info("Started in mock hardware mode.")
-            self.get_logger().info("Available sections: section_1")
-            self.get_logger().info("Available effects: 0 - Solid")
+            self.get_logger().warning("Started in mock hardware mode.")
+            self.get_logger().warning("Available sections: section_1")
+            self.get_logger().warning("Available effects: 0 - Solid")
             self.sections = {}
             self.sections["section_1"] = SectionData(0, 0, self.led_count)
             self.effects = {}
@@ -242,6 +245,7 @@ class AsyncServiceWledNode(Node):
             bool, str: Confirmation message indicating the scene was set.
         """
         self.get_logger().info(f"{pars}")
+
         try:
             async with WLED(self.wled_url) as led:
                 await led.segment(
@@ -252,7 +256,9 @@ class AsyncServiceWledNode(Node):
                     transition=1,
                     effect=pars.effect,
                 )
+
                 await led.master(on=True)
+
             return True, "Scene complete"
         except WLEDError as e:
             self.get_logger().error(f"Failed to execute scene_x: {e}")
@@ -447,6 +453,8 @@ class AsyncServiceWledNode(Node):
         Returns:
             result: The result string from the executed scene method.
         """
+        if self.mock_hardware:
+            return (True, "Mock hardware mode: scene change simulated.")
         METHODS_MAP = {
             SceneFunction.CHANGE_SCENE: self.scene_x,
             SceneFunction.SCENE_OFF: self.scene_off,
@@ -454,13 +462,13 @@ class AsyncServiceWledNode(Node):
             SceneFunction.SCENE_OFF_ALL: self.scene_off_all,
             SceneFunction.NO_CHANGE: self.do_nothing,
         }
-
         self.get_logger().info(
-            f"Requested scene: {request.scene} | section:{request.section} |  effect_id:{request.effect_id} |params: {request.optional_params}"
+            f"scene: {request.scene} | section: {request.section} | effect_id: {request.effect_id} | optional_params: {request.optional_params}"
         )
-
         params = self._prepare_request_params(request)
-
+        self.get_logger().info(
+            f"Prepared parameters: {params} | scene_function: {params.scene_function}"
+        )
         return await METHODS_MAP[params.scene_function](params)
 
     def _prepare_request_params(self, request: ChangeScene.Request) -> RunLightsData:
