@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    branches: [humble-devel]
+  pull_request:
+    branches: [humble-devel]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (ROS 2 Humble)
+    runs-on: ubuntu-latest
+    container:
+      image: ros:humble-ros-base
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout wled_ros_driver
+        uses: actions/checkout@v4
+        with:
+          path: src/wled_ros_driver
+
+      - name: Install system prerequisites
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3-pip
+
+      - name: Register local rosdep sources
+        run: |
+          source /opt/ros/humble/setup.bash
+          bash ./src/wled_ros_driver/wled_ros_driver/rosdep/register_rosdep_sources.sh
+
+      - name: rosdep update
+        run: |
+          source /opt/ros/humble/setup.bash
+          rosdep update --rosdistro "${ROS_DISTRO}"
+
+      - name: Install dependencies
+        run: |
+          source /opt/ros/humble/setup.bash
+          rosdep install --from-paths src --ignore-src -y
+
+      - name: Build
+        run: |
+          source /opt/ros/humble/setup.bash
+          colcon build --symlink-install --event-handlers console_direct+
