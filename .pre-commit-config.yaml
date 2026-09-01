@@ -63,7 +63,7 @@ repos:
     rev: v2.4.3
     hooks:
     -   id: codespell
-        args: [--write-changes]
+        args: [--write-changes, --ignore-words=.codespell-ignore-words]
 
 -   repo: https://github.com/tier4/pre-commit-hooks-ros
     rev: v0.10.3

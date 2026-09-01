@@ -12,7 +12,7 @@
 [![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
 [![Build](https://github.com/AGH-CEAI/wled_ros_driver/actions/workflows/build.yaml/badge.svg?event=schedule)](https://github.com/AGH-CEAI/wled_ros_driver/actions/workflows/build.yaml?event=schedule++)
 
-Package for controlling [WLED](https://know.wled.ge/) project using ROS 2 stack. The package was created to integrate the lights controller with experiments involving a robotic manipulator and tool cameras.
+Package for controlling [WLED](https://kno.wled.ge/) project using ROS 2 stack. The package was created to integrate the lights controller with experiments involving a robotic manipulator and tool cameras.
 
 Originally developed for integration with Robotic Manipulator with tool cameras, [aegis_ros](https://github.com/AGH-CEAI/aegis_ros) and ROS 2 Humble.
 
