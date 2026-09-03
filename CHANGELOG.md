@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+* [PR-27](https://github.com/AGH-CEAI/wled_ros_driver/pull/27) - Added rosdep files for the missing dependencies.
 * [PR-24](https://github.com/AGH-CEAI/wled_ros_driver/pull/24) - Added support for mocking hardware with flag `mock_hardware` flag; cleaned up code.
 * [PR-20](https://github.com/AGH-CEAI/wled_ros_driver/pull/20) - New ROS 2 topic `/wled_effects` publishing available light effects fetched dynamically from the WLED controller.
 * [PR-18](https://github.com/AGH-CEAI/wled_ros_driver/pull/18) - Added support for displaying effects form WLED controller.
@@ -17,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* [PR-27](https://github.com/AGH-CEAI/wled_ros_driver/pull/27) - Updated docs.
 * [PR-26](https://github.com/AGH-CEAI/wled_ros_driver/pull/15) - Changed wled_effect topic publisher to include id.
 * [PR-15](https://github.com/AGH-CEAI/wled_ros_driver/pull/15) - Separated led control into sections and scenes.
 * [PR-14](https://github.com/AGH-CEAI/wled_ros_driver/pull/14) - Fixed errors that prevented from changing scenes after setting custom scene.
