@@ -18,6 +18,12 @@ Originally developed for integration with Robotic Manipulator with tool cameras,
 
 It is possible to modify this repository to fit your needs. **PRs are welcome!**
 
+<video src="https://github.com/user-attachments/assets/de497782-70ab-474f-8257-79539de385c1" controls muted autoplay loop width="600"></video>
+
+<video src="https://github.com/user-attachments/assets/de497782-70ab-474f-8257-79539de385c1" controls muted autoplay loop width="600"></video>
+
+
+
 ## Quick Start
 
 Get you WLED controller, compatible led stripes and power supply. Connect electrically, power on and configure:
