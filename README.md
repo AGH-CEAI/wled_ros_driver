@@ -18,9 +18,9 @@ Originally developed for integration with Robotic Manipulator with tool cameras,
 
 It is possible to modify this repository to fit your needs. **PRs are welcome!**
 
-<video src="https://github.com/user-attachments/assets/de497782-70ab-474f-8257-79539de385c1" controls muted autoplay loop width="600"></video>
+<a href="https://github.com/user-attachments/assets/de497782-70ab-474f-8257-79539de385c1"><video src="https://github.com/user-attachments/assets/de497782-70ab-474f-8257-79539de385c1" controls muted autoplay loop width="600"></video></a>
 
-<video src="https://github.com/user-attachments/assets/de497782-70ab-474f-8257-79539de385c1" controls muted autoplay loop width="600"></video>
+<a href="https://github.com/user-attachments/assets/f6e5cdb8-2287-4afa-a443-afdfaf99c49d"><video src="https://github.com/user-attachments/assets/f6e5cdb8-2287-4afa-a443-afdfaf99c49d" controls muted autoplay loop width="600"></video></a>
 
 
 
